@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS — Plataforma Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --blue: #00b4ff; --blue-dark: #0088cc; --purple: #8b5cf6;
+      --cyan: #06b6d4; --red: #ef4444; --amber: #f59e0b; --green: #10b981;
+      --white: #f0f0f5; --gray: #9ca3af; --gray-dark: #6b7280;
+      --surface: #111118; --surface-2: #16161e; --surface-3: #1a1a24;
+      --border: rgba(255,255,255,0.06); --border-hover: rgba(255,255,255,0.12);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: #000; color: var(--white); font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,180,255,0.4); }
+
+    .glass { background: rgba(10,10,16,0.8); backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--border); }
+    .glass-strong { background: rgba(8,8,14,0.95); backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); }
+    .card { background: linear-gradient(145deg, rgba(18,18,28,0.9), rgba(12,12,18,0.95)); border: 1px solid var(--border); transition: all 0.35s cubic-bezier(0.16,1,0.3,1); cursor: pointer; }
+    .card:hover { transform: translateY(-4px) scale(1.01); border-color: rgba(0,180,255,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 20px rgba(0,180,255,0.08); }
+    .btn-primary { background: var(--blue); color: #000; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-primary:hover { background: #fff; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
+    .btn-danger { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); transition: all 0.2s; cursor: pointer; }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .btn-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; color: var(--gray-dark); transition: all 0.2s; background: transparent; border: none; cursor: pointer; }
+    .btn-icon:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; }
+    .badge-blue { background: rgba(0,180,255,0.1); color: var(--blue); border: 1px solid rgba(0,180,255,0.15); }
+    .badge-purple { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid rgba(139,92,246,0.15); }
+    .badge-red { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.15); }
+    .badge-amber { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.15); }
+    .badge-green { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.15); }
+    .badge-cyan { background: rgba(6,182,212,0.1); color: var(--cyan); border: 1px solid rgba(6,182,212,0.15); }
+    .text-gradient { background: linear-gradient(135deg, #ffffff 0%, #a0c4ff 50%, var(--blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .ambient-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .ambient-bg::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(0,180,255,0.05) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.03) 0%, transparent 50%); animation: ambientFloat 20s ease-in-out infinite; }
+    @keyframes ambientFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2%, 2%); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes waveAnim { 0%, 100% { height: 4px; } 50% { height: 32px; } }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in-up { animation: fadeInUp 0.5s ease-out both; }
+
+    .row-container { display: flex; gap: 16px; overflow-x: auto; padding: 0 4px 12px 4px; scrollbar-width: none; -ms-overflow-style: none; }
+    .row-container::-webkit-scrollbar { display: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .loading-screen { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s; }
+    .loading-screen.hidden { opacity: 0; pointer-events: none; }
+    .spinner { width: 48px; height: 48px; border: 2px solid transparent; border-top-color: var(--blue); border-right-color: rgba(0,180,255,0.3); border-radius: 50%; animation: spin 1s linear infinite; }
+
+    .hero-section { position: relative; overflow: hidden; margin: -80px -16px 0 -16px; }
+    @media (min-width: 768px) { .hero-section { margin: -80px -32px 0 -32px; } }
+    .hero-section img { width: 100%; aspect-ratio: 21/9; object-fit: cover; display: block; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,1) 100%), linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 60%); }
+
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: var(--gray-dark); font-size: 13px; font-weight: 500; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: #fff; }
+    .nav-item.active { background: rgba(0,180,255,0.12); color: var(--blue); border: 1px solid rgba(0,180,255,0.15); }
+
+    .filter-btn { padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; transition: all 0.2s; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--gray-dark); }
+    .filter-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .filter-btn.active { background: var(--blue); color: #000; border-color: var(--blue); font-weight: 600; }
+    .filter-btn.active-purple { background: var(--purple); color: #fff; border-color: var(--purple); font-weight: 600; }
+    .filter-btn.active-cyan { background: var(--cyan); color: #000; border-color: var(--cyan); font-weight: 600; }
+
+    input[type="text"], input[type="email"], input[type="password"] { background: rgba(18,18,24,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; color: #fff; font-size: 13px; outline: none; transition: all 0.3s; width: 100%; }
+    input:focus { border-color: rgba(0,180,255,0.4); box-shadow: 0 0 0 3px rgba(0,180,255,0.1); background: rgba(18,18,24,0.8); }
+    input::placeholder { color: var(--gray-dark); }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 50; overflow-y: auto; }
+    .overlay-center { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 50; display: flex; align-items: center; justify-content: center; }
+
+    .list-item { display: flex; align-items: center; gap: 16px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+    .list-item:hover { background: rgba(255,255,255,0.04); border-color: var(--border-hover); transform: translateX(4px); }
+
+    .toggle-switch { width: 44px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.08); position: relative; cursor: pointer; transition: background 0.3s; }
+    .toggle-switch.on { background: var(--blue); }
+    .toggle-switch .dot { width: 18px; height: 18px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .toggle-switch.on .dot { transform: translateX(20px); }
+
+    .page-content { padding-top: 72px; padding-bottom: 32px; }
+    @media (min-width: 768px) { .page-content { padding-left: 32px; padding-right: 32px; } }
+    .page-header { font-size: 24px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.02em; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 4px; }
+    .section-title h2 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    @media (min-width: 1280px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+    .flex-center { display: flex; align-items: center; justify-content: center; }
+    .avatar { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, var(--blue), var(--purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+    .avatar-sm { width: 36px; height: 36px; border-radius: 10px; font-size: 13px; }
+    .progress-bar { height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: var(--blue); border-radius: 1px; transition: width 0.8s ease-out; }
+
+    .waveform-container { display: flex; align-items: center; justify-content: center; gap: 2px; height: 56px; }
+    .waveform-bar { width: 2px; border-radius: 1px; background: rgba(255,255,255,0.1); transition: all 0.3s; }
+    .waveform-bar.active { background: linear-gradient(to top, var(--blue), var(--purple)); }
+    .waveform-bar.playing { animation: waveAnim 0.8s ease-in-out infinite; }
+
+    /* Auth Screen */
+    .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .auth-box { width: 100%; max-width: 420px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px; padding: 40px; }
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo .logo-icon { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--blue), var(--purple)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 0 30px rgba(0,180,255,0.2); }
+    .auth-logo h1 { font-size: 24px; font-weight: 800; letter-spacing: 0.15em; }
+    .auth-logo p { font-size: 13px; color: var(--gray-dark); margin-top: 4px; }
+    .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 4px; }
+    .auth-tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--gray-dark); cursor: pointer; transition: all 0.2s; border: none; background: none; }
+    .auth-tab.active { background: var(--blue); color: #000; font-weight: 600; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--gray); margin-bottom: 6px; }
+    .form-error { font-size: 12px; color: var(--red); margin-top: 4px; display: none; }
+    .form-error.show { display: block; }
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .auth-divider span { font-size: 12px; color: var(--gray-dark); }
+    .google-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+    .google-btn:hover { background: rgba(255,255,255,0.06); border-color: var(--border-hover); }
+
+    /* Toast */
+    .toast-container { position: fixed; top: 80px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; animation: slideIn 0.3s ease-out; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .toast-success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--green); }
+    .toast-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+    .toast-info { background: rgba(0,180,255,0.15); border: 1px solid rgba(0,180,255,0.3); color: var(--blue); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Upload Modal */
+    .upload-area { border: 2px dashed var(--border); border-radius: 16px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .upload-area:hover, .upload-area.dragover { border-color: var(--blue); background: rgba(0,180,255,0.03); }
+    .upload-area svg { margin-bottom: 12px; color: var(--gray-dark); }
+
+    /* Cloudinary Widget styling */
+    .cloudinary-upload-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; background: var(--blue); color: #000; font-weight: 600; font-size: 13px; border: none; cursor: pointer; transition: all 0.2s; }
+    .cloudinary-upload-btn:hover { background: #fff; }
+
+    /* Admin table */
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+    .admin-table td { padding: 12px 16px; font-size: 13px; color: var(--gray); border-bottom: 1px solid var(--border); }
+    .admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-dark); }
+    .empty-state svg { margin-bottom: 16px; opacity: 0.3; }
+    .empty-state h3 { font-size: 18px; color: var(--gray); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+  <!-- Cloudinary Widget -->
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
+  <script>
+    // ============================================
+    // 🔥 FIREBASE CONFIG - SUBSTITUA COM SEUS DADOS
+    // ============================================
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY_AQUI",
+      authDomain: "SEU-PROJETO.firebaseapp.com",
+      projectId: "SEU-PROJETO",
+      storageBucket: "SEU-PROJETO.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    // Inicializa Firebase
+    let firebaseApp, auth, db, storage;
+    let firebaseReady = false;
+
+    try {
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+      storage = firebase.storage();
+      firebaseReady = true;
+      console.log('✅ Firebase inicializado com sucesso');
+    } catch (e) {
+      console.warn('⚠️ Firebase não configurado. Modo demo ativado.');
+      firebaseReady = false;
+    }
+
+    // ============================================
+    // ☁️ CLOUDINARY CONFIG
+    // ============================================
+    const CLOUDINARY_CONFIG = {
+      cloudName: 'SEU_CLOUD_NAME',
+      uploadPreset: 'SEU_UPLOAD_PRESET',
+      apiKey: 'SUA_API_KEY'
+    };
+
+    let cloudinaryWidget = null;
+
+    // ============================================
+    // 📦 SVG ICONS
+    // ============================================
+    const SVG_ICONS = {
+      home: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      video: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`,
+      book: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>`,
+      headphones: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+      compass: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+      heart: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+      heartFilled: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+      clock: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      list: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
+      download: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>`,
+      settings: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      shield: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>`,
+      search: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
+      bell: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`,
+      bookmark: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>`,
+      bookmarkFilled: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>`,
+      upload: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>`,
+      play: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg>`,
+      playSmall: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg>`,
+      pause: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+      pauseSmall: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+      skipForward: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>`,
+      skipBack: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>`,
+      volume: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`,
+      volumeX: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`,
+      maximize: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`,
+      minimize: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`,
+      chevronLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
+      chevronRight: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+      star: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+      share: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>`,
+      thumbsUp: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>`,
+      message: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+      filter: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
+      trending: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+      eye: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      music: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+      zap: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      layers: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>`,
+      activity: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>`,
+      radio: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
+      bookMarked: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m9 10 2 2 4-4"/></svg>`,
+      film: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>`,
+      users: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      check: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+      plus: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+      trash: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`,
+      x: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+      menu: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>`,
+      chevDown: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+      chevUp: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`,
+      sparkles: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg>`,
+      repeat: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>`,
+      shuffle: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>`,
+      bookmarkCheck: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><path d="m9 10 2 2 4-4"/></svg>`,
+      logOut: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>`,
+      cloud: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
+      image: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`,
+      user: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+      mail: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
+      lock: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+      edit: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`,
+      barChart: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`,
+      globe: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    };
+
+    function icon(name, size, cls) {
+      const svg = SVG_ICONS[name];
+      if (!svg) return '';
+      let s = svg;
+      if (size) s = s.replace(/width="[^"]*"/, `width="${size}"`).replace(/height="[^"]*"/, `height="${size}"`);
+      if (cls) s = s.replace(/svg /, `svg class="${cls} " `);
+      return s;
+    }
+
+    // ============================================
+    // 🗄️ DEMO DATA (Fallback quando Firebase não está configurado)
+    // ============================================
+    const demoVideos = [
+      { id: 'd1', title: "Fundamentos da Elétrica Industrial", duration: "24:15", views: "1.2M", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/146f76c36-ff85-4ae7-8431-2be22742b1c0.png", category: "Elétrica", author: "JR", date: "2 dias atrás", progress: 65, likes: "45K", type: "video", createdAt: Date.now() },
+      { id: 'd2', title: "Circuitos Avançados - Masterclass", duration: "18:42", views: "890K", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1da883707-64e0-4bb2-b7d3-96f3ed0e7733.png", category: "Automação", author: "JR", date: "5 dias atrás", progress: 30, likes: "32K", type: "video", createdAt: Date.now() },
+      { id: 'd3', title: "Segurança em Instalações Elétricas", duration: "32:08", views: "2.1M", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1096348b1-ebaf-4f4c-b2e3-3b08422bd92e.png", category: "Segurança", author: "JR", date: "1 semana atrás", likes: "67K", type: "video", createdAt: Date.now() },
+      { id: 'd4', title: "Projeto de Painéis Elétricos", duration: "45:20", views: "567K", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/18643490d-1a86-4ed9-abfd-b01ec8f6789f.png", category: "Projetos", author: "JR", date: "2 semanas atrás", likes: "28K", type: "video", createdAt: Date.now() },
+      { id: 'd5', title: "Multímetros e Medições", duration: "15:33", views: "1.5M", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/146f76c36-ff85-4ae7-8431-2be22742b1c0.png", category: "Ferramentas", author: "JR", date: "3 semanas atrás", likes: "51K", type: "video", createdAt: Date.now() },
+      { id: 'd6', title: "Normas NR-10 e NBR-5410", duration: "28:50", views: "3.4M", thumbnail: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1da883707-64e0-4bb2-b7d3-96f3ed0e7733.png", category: "Normas", author: "JR", date: "1 mês atrás", likes: "89K", type: "video", createdAt: Date.now() },
+    ];
+
+    const demoBooks = [
+      { id: 'b1', title: "O Futuro da Leitura", author: "Elena Voss", pages: 324, cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1096348b1-ebaf-4f4c-b2e3-3b08422bd92e.png", category: "Tecnologia", progress: 45, rating: 4.8, type: "book", createdAt: Date.now() },
+      { id: 'b2', title: "Engenharia Elétrica Moderna", author: "Carlos Mendes", pages: 456, cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/18643490d-1a86-4ed9-abfd-b01ec8f6789f.png", category: "Engenharia", progress: 12, rating: 4.9, type: "book", createdAt: Date.now() },
+      { id: 'b3', title: "Automação Industrial", author: "Maria Silva", pages: 289, cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/146f76c36-ff85-4ae7-8431-2be22742b1c0.png", category: "Automação", progress: 78, rating: 4.7, type: "book", createdAt: Date.now() },
+      { id: 'b4', title: "Guia Completo de Circuitos", author: "Paulo Ferreira", pages: 512, cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1da883707-64e0-4bb2-b7d3-96f3ed0e7733.png", category: "Elétrica", progress: 0, rating: 4.6, type: "book", createdAt: Date.now() },
+      { id: 'b5', title: "Design de Interfaces", author: "Ana Costa", pages: 198, cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1096348b1-ebaf-4f4c-b2e3-3b08422bd92e.png", category: "Design", progress: 90, rating: 4.5, type: "book", createdAt: Date.now() },
+    ];
+
+    const demoAudios = [
+      { id: 'a1', title: "Podcast: Elétrica Descomplicada #42", duration: "42:18", cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/18643490d-1a86-4ed9-abfd-b01ec8f6789f.png", category: "Podcast", progress: 12.75, type: "audio", createdAt: Date.now() },
+      { id: 'a2', title: "Audiobook: Circuitos e Sistemas", duration: "3:24:50", cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/146f76c36-ff85-4ae7-8431-2be22742b1c0.png", category: "Audiobook", progress: 0.5, type: "audio", createdAt: Date.now() },
+      { id: 'a3', title: "Meditação Tech: Foco Profundo", duration: "15:00", cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1da883707-64e0-4bb2-b7d3-96f3ed0e7733.png", category: "Meditação", progress: 0, type: "audio", createdAt: Date.now() },
+      { id: 'a4', title: "Entrevista: Engenheiros do Futuro", duration: "1:05:30", cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1096348b1-ebaf-4f4c-b2e3-3b08422bd92e.png", category: "Entrevista", progress: 0, type: "audio", createdAt: Date.now() },
+      { id: 'a5', title: "Lo-Fi Beats para Programar", duration: "2:15:00", cover: "https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/18643490d-1a86-4ed9-abfd-b01ec8f6789f.png", category: "Música", progress: 0.3, type: "audio", createdAt: Date.now() },
+    ];
+
+    // ============================================
+    // 🔄 DATA SERVICE (Firebase + Demo fallback)
+    // ============================================
+    const DataService = {
+      // Videos
+      async getVideos() {
+        if (firebaseReady) {
+          const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        return demoVideos;
+      },
+
+      async addVideo(data) {
+        if (firebaseReady) {
+          const doc = await db.collection('videos').add({
+            ...data,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            views: '0',
+            likes: '0',
+            progress: 0,
+            type: 'video'
+          });
+          return { id: doc.id, ...data };
+        }
+        const newVideo = { id: 'v' + Date.now(), ...data, views: '0', likes: '0', progress: 0, type: 'video', createdAt: Date.now() };
+        demoVideos.unshift(newVideo);
+        return newVideo;
+      },
+
+      async deleteVideo(id) {
+        if (firebaseReady) {
+          await db.collection('videos').doc(id).delete();
+        } else {
+          const idx = demoVideos.findIndex(v => v.id === id);
+          if (idx >= 0) demoVideos.splice(idx, 1);
+        }
+      },
+
+      // Books
+      async getBooks() {
+        if (firebaseReady) {
+          const snap = await db.collection('books').orderBy('createdAt', 'desc').get();
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        return demoBooks;
+      },
+
+      async addBook(data) {
+        if (firebaseReady) {
+          const doc = await db.collection('books').add({
+            ...data,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            rating: data.rating || 0,
+            progress: 0,
+            type: 'book'
+          });
+          return { id: doc.id, ...data };
+        }
+        const newBook = { id: 'b' + Date.now(), ...data, rating: data.rating || 0, progress: 0, type: 'book', createdAt: Date.now() };
+        demoBooks.unshift(newBook);
+        return newBook;
+      },
+
+      async deleteBook(id) {
+        if (firebaseReady) {
+          await db.collection('books').doc(id).delete();
+        } else {
+          const idx = demoBooks.findIndex(b => b.id === id);
+          if (idx >= 0) demoBooks.splice(idx, 1);
+        }
+      },
+
+      // Audios
+      async getAudios() {
+        if (firebaseReady) {
+          const snap = await db.collection('audios').orderBy('createdAt', 'desc').get();
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        return demoAudios;
+      },
+
+      async addAudio(data) {
+        if (firebaseReady) {
+          const doc = await db.collection('audios').add({
+            ...data,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            progress: 0,
+            type: 'audio'
+          });
+          return { id: doc.id, ...data };
+        }
+        const newAudio = { id: 'a' + Date.now(), ...data, progress: 0, type: 'audio', createdAt: Date.now() };
+        demoAudios.unshift(newAudio);
+        return newAudio;
+      },
+
+      async deleteAudio(id) {
+        if (firebaseReady) {
+          await db.collection('audios').doc(id).delete();
+        } else {
+          const idx = demoAudios.findIndex(a => a.id === id);
+          if (idx >= 0) demoAudios.splice(idx, 1);
+        }
+      },
+
+      // Favorites
+      async getFavorites() {
+        if (firebaseReady && auth.currentUser) {
+          const snap = await db.collection('favorites').where('userId', '==', auth.currentUser.uid).get();
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        return JSON.parse(localStorage.getItem('nexus_favorites') || '[]');
+      },
+
+      async toggleFavorite(item) {
+        if (firebaseReady && auth.currentUser) {
+          const existing = await db.collection('favorites')
+            .where('userId', '==', auth.currentUser.uid)
+            .where('contentId', '==', item.id).get();
+
+          if (!existing.empty) {
+            existing.forEach(doc => doc.ref.delete());
+            return { action: 'removed' };
+          } else {
+            await db.collection('favorites').add({
+              userId: auth.currentUser.uid,
+              contentId: item.id,
+              title: item.title,
+              thumbnail: item.thumbnail || item.cover,
+              type: item.type || 'video',
+              author: item.author,
+              category: item.category,
+              duration: item.duration,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { action: 'added' };
+          }
+        } else {
+          let favs = JSON.parse(localStorage.getItem('nexus_favorites') || '[]');
+          const idx = favs.findIndex(f => f.contentId === item.id);
+          if (idx >= 0) {
+            favs.splice(idx, 1);
+            localStorage.setItem('nexus_favorites', JSON.stringify(favs));
+            return { action: 'removed' };
+          } else {
+            favs.push({
+              contentId: item.id,
+              title: item.title,
+              thumbnail: item.thumbnail || item.cover,
+              type: item.type || 'video',
+              author: item.author,
+              category: item.category,
+              duration: item.duration
+            });
+            localStorage.setItem('nexus_favorites', JSON.stringify(favs));
+            return { action: 'added' };
+          }
+        }
+      },
+
+      async isFavorite(contentId) {
+        if (firebaseReady && auth.currentUser) {
+          const snap = await db.collection('favorites')
+            .where('userId', '==', auth.currentUser.uid)
+            .where('contentId', '==', contentId).get();
+          return !snap.empty;
+        } else {
+          const favs = JSON.parse(localStorage.getItem('nexus_favorites') || '[]');
+          return favs.some(f => f.contentId === contentId);
+        }
+      },
+
+      // Playlists
+      async getPlaylists() {
+        if (firebaseReady && auth.currentUser) {
+          const snap = await db.collection('playlists').where('userId', '==', auth.currentUser.uid).get();
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        return JSON.parse(localStorage.getItem('nexus_playlists') || '[]');
+      },
+
+      async createPlaylist(name, items) {
+        const playlist = {
+          id: 'pl_' + Date.now(),
+          name,
+          items: items || [],
+          createdAt: Date.now()
+        };
+        if (firebaseReady && auth.currentUser) {
+          playlist.userId = auth.currentUser.uid;
+          playlist.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          const doc = await db.collection('playlists').add(playlist);
+          playlist.id = doc.id;
+        } else {
+          let playlists = JSON.parse(localStorage.getItem('nexus_playlists') || '[]');
+          playlists.push(playlist);
+          localStorage.setItem('nexus_playlists', JSON.stringify(playlists));
+        }
+        return playlist;
+      },
+
+      async deletePlaylist(id) {
+        if (firebaseReady && auth.currentUser) {
+          await db.collection('playlists').doc(id).delete();
+        } else {
+          let playlists = JSON.parse(localStorage.getItem('nexus_playlists') || '[]');
+          playlists = playlists.filter(p => p.id !== id);
+          localStorage.setItem('nexus_playlists', JSON.stringify(playlists));
+        }
+      }
+    };
+
+    // ============================================
+    // ☁️ CLOUDINARY UPLOAD SERVICE
+    // ============================================
+    const CloudinaryService = {
+      initWidget(onSuccess, onError) {
+        if (typeof cloudinary === 'undefined') {
+          showToast('Cloudinary não configurado. Use o upload local.', 'error');
+          return;
+        }
+        cloudinaryWidget = cloudinary.createUploadWidget({
+          cloudName: CLOUDINARY_CONFIG.cloudName,
+          uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+          sources: ['local', 'url', 'camera'],
+          multiple: false,
+          resourceType: 'auto',
+          cropping: false,
+          showAdvancedOptions: false,
+          tags: ['nexus-upload'],
+          styles: {
+            palette: {
+              window: "#111118",
+              windowBorder: "#2a2a3a",
+              tabIcon: "#00b4ff",
+              menuIcons: "#00b4ff",
+              textDark: "#f0f0f5",
+              textLight: "#9ca3af",
+              link: "#00b4ff",
+              action: "#00b4ff",
+              inactiveTabIcon: "#6b7280",
+              error: "#ef4444",
+              inProgress: "#00b4ff",
+              complete: "#10b981",
+              sourceBg: "#16161e"
+            },
+            fonts: {
+              default: { active: true }
+            }
+          }
+        }, (error, result) => {
+          if (!error && result && result.event === "success") {
+            onSuccess(result.info);
+          } else if (error) {
+            onError(error);
+          }
+        });
+      },
+
+      open() {
+        if (cloudinaryWidget) {
+          cloudinaryWidget.open();
+        } else {
+          showToast('Widget Cloudinary não inicializado', 'error');
+        }
+      }
+    };
+
+    // ============================================
+    // 🔥 FIREBASE AUTH SERVICE
+    // ============================================
+    const AuthService = {
+      async login(email, password) {
+        if (firebaseReady) {
+          const cred = await auth.signInWithEmailAndPassword(email, password);
+          return cred.user;
+        } else {
+          // Demo login
+          const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+          const user = users.find(u => u.email === email && u.password === password);
+          if (user) {
+            localStorage.setItem('nexus_currentUser', JSON.stringify({ uid: user.uid, email: user.email, displayName: user.displayName }));
+            return { uid: user.uid, email: user.email, displayName: user.displayName };
+          }
+          throw new Error('Email ou senha incorretos');
+        }
+      },
+
+      async register(email, password, displayName) {
+        if (firebaseReady) {
+          const cred = await auth.createUserWithEmailAndPassword(email, password);
+          await cred.user.updateProfile({ displayName });
+          return cred.user;
+        } else {
+          let users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+          if (users.find(u => u.email === email)) throw new Error('Email já cadastrado');
+          const newUser = { uid: 'u_' + Date.now(), email, password, displayName };
+          users.push(newUser);
+          localStorage.setItem('nexus_users', JSON.stringify(users));
+          localStorage.setItem('nexus_currentUser', JSON.stringify({ uid: newUser.uid, email, displayName }));
+          return { uid: newUser.uid, email, displayName };
+        }
+      },
+
+      async googleLogin() {
+        if (firebaseReady) {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          const result = await auth.signInWithPopup(provider);
+          return result.user;
+        } else {
+          const demoUser = { uid: 'google_demo', email: 'demo@gmail.com', displayName: 'Usuário Demo' };
+          localStorage.setItem('nexus_currentUser', JSON.stringify(demoUser));
+          return demoUser;
+        }
+      },
+
+      async logout() {
+        if (firebaseReady) {
+          await auth.signOut();
+        } else {
+          localStorage.removeItem('nexus_currentUser');
+        }
+      },
+
+      getCurrentUser() {
+        if (firebaseReady) {
+          return auth.currentUser;
+        } else {
+          return JSON.parse(localStorage.getItem('nexus_currentUser') || 'null');
+        }
+      },
+
+      onAuthChange(callback) {
+        if (firebaseReady) {
+          auth.onAuthStateChanged(callback);
+        } else {
+          callback(this.getCurrentUser());
+        }
+      }
+    };
+
+    // ============================================
+    // 🍞 TOAST NOTIFICATIONS
+    // ============================================
+    function showToast(message, type = 'info') {
+      const container = document.querySelector('.toast-container') || createToastContainer();
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icons = { success: icon('check', 16), error: icon('x', 16), info: icon('bell', 16) };
+      toast.innerHTML = `${icons[type] || ''} ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function createToastContainer() {
+      const div = document.createElement('div');
+      div.className = 'toast-container';
+      document.body.appendChild(div);
+      return div;
+    }
+
+    // ============================================
+    // 📦 APP STATE
+    // ============================================
+    let appState = {
+      currentPage: 'home',
+      sidebarOpen: false,
+      searchQuery: '',
+      selectedItem: null,
+      activeItemType: null,
+      currentUser: null,
+      filters: { videos: 'Todos', books: 'Todos', audios: 'Todos' },
+      settings: { darkMode: true, notifications: true, autoplay: true, quality: 'Auto' },
+      videoPlayer: { isPlaying: false, currentTime: 0, volume: 80, isMuted: false, speed: 1, liked: false, saved: false, showComments: false },
+      bookReader: { currentPage: 0, zoom: 1, bookmarked: false },
+      audioPlayer: { isPlaying: false, currentTime: 0, volume: 80, isMuted: false, liked: false, saved: false },
+      adminTab: 'overview',
+      showUploadModal: false,
+      uploadType: 'video',
+      contentData: { videos: [], books: [], audios: [], favorites: [], playlists: [] },
+      isDemoMode: !firebaseReady
+    };
+
+    function setState(updates) {
+      Object.assign(appState, updates);
+      render();
+    }
+
+    function navigateTo(page) {
+      setState({ currentPage: page });
+      window.scrollTo(0, 0);
+    }
+
+    function toggleSidebar() {
+      setState({ sidebarOpen: !appState.sidebarOpen });
+    }
+
+    function handleItemClick(item) {
+      setState({ selectedItem: item, activeItemType: item.type || 'video' });
+    }
+
+    function handleBack() {
+      setState({ selectedItem: null, activeItemType: null });
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // ============================================
+    // 🎨 RENDER FUNCTIONS
+    // ============================================
+
+    function renderLoadingScreen() {
+      return `
+        <div class="loading-screen" id="loadingScreen">
+          <div class="spinner"></div>
+          <div style="margin-top:32px;text-align:center">
+            <span style="font-size:28px;font-weight:800;letter-spacing:0.3em" class="text-gradient">NEXUS</span>
+            <p style="font-size:10px;color:var(--gray-dark);letter-spacing:0.3em;text-transform:uppercase;margin-top:4px">Digital Content Platform</p>
+            ${appState.isDemoMode ? '<p style="font-size:11px;color:var(--amber);margin-top:8px;display:flex;align-items:center;gap:4px;justify-content:center">⚠️ Modo Demo — Configure o Firebase para dados reais</p>' : ''}
+          </div>
+          <div style="width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);margin-top:32px"></div>
+        </div>`;
+    }
+
+    function renderAuthScreen() {
+      return `
+        <div class="auth-container">
+          <div class="auth-box fade-in-up">
+            <div class="auth-logo">
+              <div class="logo-icon">${icon('zap', 28)}</div>
+              <h1 class="text-gradient">NEXUS</h1>
+              <p>Plataforma de Conteúdo Digital</p>
+            </div>
+            <div class="auth-tabs">
+              <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Entrar</button>
+              <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Criar Conta</button>
+            </div>
+            <div id="authForm">
+              <div id="loginForm">
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" id="loginEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                  <label>Senha</label>
+                  <input type="password" id="loginPassword" placeholder="••••••••">
+                  <p class="form-error" id="loginError"></p>
+                </div>
+                <button class="btn-primary" style="width:100%;padding:12px;border-radius:12px;font-size:14px" onclick="handleLogin()">Entrar</button>
+                <div class="auth-divider"><span>ou</span></div>
+                <button class="google-btn" onclick="handleGoogleLogin()">
+                  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Entrar com Google
+                </button>
+              </div>
+              <div id="registerForm" style="display:none">
+                <div class="form-group">
+                  <label>Nome</label>
+                  <input type="text" id="regName" placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" id="regEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                  <label>Senha</label>
+                  <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres">
+                  <p class="form-error" id="regError"></p>
+                </div>
+                <button class="btn-primary" style="width:100%;padding:12px;border-radius:12px;font-size:14px" onclick="handleRegister()">Criar Conta</button>
+              </div>
+            </div>
+            ${appState.isDemoMode ? '<p style="text-align:center;margin-top:20px;font-size:11px;color:var(--gray-dark)">💡 Modo Demo: use qualquer email/senha para testar</p>' : ''}
+          </div>
+        </div>`;
+    }
+
+    function renderSidebar() {
+      const items = [
+        { icon: 'home', label: 'Início', page: 'home' },
+        { icon: 'video', label: 'Vídeos', page: 'videos' },
+        { icon: 'book', label: 'Livros', page: 'books' },
+        { icon: 'headphones', label: 'Áudios', page: 'audios' },
+        { icon: 'compass', label: 'Explorar', page: 'explore' },
+        { icon: 'heart', label: 'Favoritos', page: 'favorites' },
+        { icon: 'clock', label: 'Histórico', page: 'history' },
+        { icon: 'list', label: 'Playlists', page: 'playlists' },
+        { icon: 'download', label: 'Downloads', page: 'downloads' },
+        { icon: 'settings', label: 'Configurações', page: 'settings' },
+        { icon: 'shield', label: 'Admin', page: 'admin' },
+      ];
+      return `
+        <div style="position:fixed;left:0;top:0;bottom:0;width:${appState.sidebarOpen ? 256 : 72}px;z-index:40;background:rgba(8,8,14,0.95);backdrop-filter:blur(32px);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width 0.3s cubic-bezier(0.16,1,0.3,1)">
+          <div style="padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);height:64px;flex-shrink:0">
+            <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px rgba(0,180,255,0.2)">${icon('zap', 18)}</div>
+            ${appState.sidebarOpen ? `<div><span style="font-size:18px;font-weight:800;letter-spacing:0.1em" class="text-gradient">NEXUS</span><p style="font-size:9px;color:var(--gray-dark);letter-spacing:0.2em;text-transform:uppercase;margin-top:-2px">${appState.isDemoMode ? 'DEMO' : 'Premium'}</p></div>` : ''}
+          </div>
+          <nav style="flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:2px">
+            ${items.map(item => `
+              <button class="nav-item ${appState.currentPage === item.page ? 'active' : ''}" onclick="navigateTo('${item.page}')" style="justify-content:${appState.sidebarOpen ? 'flex-start' : 'center'}">
+                ${icon(item.icon)}
+                ${appState.sidebarOpen ? `<span>${item.label}</span>` : ''}
+              </button>
+            `).join('')}
+          </nav>
+          <div style="padding:12px;border-top:1px solid var(--border)">
+            <button class="btn-icon" style="width:100%;height:40px;border-radius:10px;color:var(--gray-dark)" onclick="toggleSidebar()">
+              ${appState.sidebarOpen ? icon('chevronLeft') : icon('chevronRight')}
+            </button>
+          </div>
+        </div>`;
+    }
+
+    function renderHeader() {
+      const user = appState.currentUser;
+      const offset = appState.sidebarOpen ? (window.innerWidth >= 1024 ? 256 : 0) : 0;
+      return `
+        <header class="glass" style="position:fixed;top:0;right:0;left:${offset}px;z-index:20;height:64px;display:flex;align-items:center;padding:0 16px;gap:12px;transition:left 0.3s">
+          <button class="btn-icon" onclick="toggleSidebar()">${icon('menu')}</button>
+          <div style="flex:1;max-width:640px;position:relative">
+            <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-dark)">${icon('search')}</div>
+            <input type="text" placeholder="Buscar vídeos, livros, áudios..." value="${appState.searchQuery}" oninput="handleSearchInput(this.value)" id="searchInput">
+            ${appState.searchQuery ? `<button onclick="handleSearchInput('')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:4px">${icon('x')}</button>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <button class="btn-icon" style="position:relative">
+              ${icon('bell')}
+              <span style="position:absolute;top:4px;right:4px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:2px solid #000">3</span>
+            </button>
+            ${user ? `
+              <div style="display:flex;align-items:center;gap:8px;margin-left:8px;padding-left:12px;border-left:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">${(user.displayName || user.email || '?')[0].toUpperCase()}</div>
+                <span style="font-size:12px;color:var(--gray);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                <button class="btn-icon" style="width:28px;height:28px" onclick="handleLogout()" title="Sair">${icon('logOut', 16)}</button>
+              </div>
+            ` : `
+              <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.1)">JR</div>
+            `}
+          </div>
+        </header>`;
+    }
+
+    // Content Card Components
+    function createVideoCard(item) {
+      return `
+        <div class="card rounded-2xl overflow-hidden" onclick='handleItemClick(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+          <div style="position:relative;aspect-ratio:16/9;overflow:hidden">
+            <img src="${item.thumbnail || item.cover || ''}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s" loading="lazy" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.1) 40%,transparent 100%)"></div>
+            ${item.duration ? `<span style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;font-family:monospace;font-weight:500">${item.duration}</span>` : ''}
+            ${item.pages ? `<span style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);color:#fff;font-size:11px;padding:2px 8px;border-radius:6px">${item.pages} pág.</span>` : ''}
+            ${item.progress > 0 ? `<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.08)"><div style="height:100%;width:${item.progress}%;background:var(--blue);border-radius:1px"></div></div>` : ''}
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s" onmouseover="this.parentElement.style.opacity=1" onmouseout="this.parentElement.style.opacity=0">
+              <div style="width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,180,255,0.4)">
+                ${icon('play', 24)}
+              </div>
+            </div>
+          </div>
+          <div style="padding:14px">
+            <h3 style="font-size:13px;font-weight:600;color:#fff;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${item.title}</h3>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--gray-dark);gap:8px">
+              <span style="font-weight:500">${item.author || ''}</span>
+              <span style="display:flex;align-items:center;gap:3px">${icon('eye')} ${item.views || item.rating || ''}</span>
+            </div>
+            ${item.category ? `<span class="badge badge-blue" style="margin-top:10px;display:inline-block">${item.category}</span>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function createAudioItem(item) {
+      return `
+        <div class="list-item" onclick='handleItemClick(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+          <div style="position:relative;width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)">
+            <img src="${item.cover || item.thumbnail || ''}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4)">${icon('playSmall', 18)}</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <h3 style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</h3>
+            <p style="font-size:11px;color:var(--gray-dark);margin-top:2px">${item.category || ''} • ${item.duration || ''}</p>
+          </div>
+          ${item.progress > 0 ? `<div style="width:60px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${(item.progress/2538)*100}%;background:var(--cyan);border-radius:2px"></div></div>` : ''}
+          <span style="font-size:11px;color:var(--gray-dark);font-family:monospace;flex-shrink:0">${item.duration || ''}</span>
+        </div>`;
+    }
+
+    function createContentRow(title, items, iconKey, createCard) {
+      if (!items.length) return '';
+      const id = 'row_' + Math.random().toString(36).substr(2, 9);
+      return `
+        <div style="margin-bottom:40px">
+          <div class="section-title">
+            <h2>${icon(iconKey)} ${title} ${icon('sparkles', 14, 'style="color:var(--blue);opacity:0.5"')}</h2>
+            <button style="font-size:12px;color:var(--gray-dark);display:flex;align-items:center;gap:4px;cursor:pointer;background:none;border:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-dark)'">Ver tudo ${icon('chevronRight', 16)}</button>
+          </div>
+          <div class="row-container" id="${id}">
+            ${items.map(item => `<div style="flex-shrink:0;width:260px;min-width:260px">${createCard(item)}</div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function createHeroSection() {
+      const slide = appState.contentData.videos[0];
+      if (!slide) return '';
+      return `
+        <div class="hero-section" style="margin-top:-72px">
+          <img src="${slide.thumbnail || slide.cover || ''}" alt="${slide.title}">
+          <div class="hero-overlay"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:40px 32px;display:flex;align-items:end">
+            <div style="max-width:600px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <span class="badge badge-blue">Destaque</span>
+                <span style="font-size:12px;color:var(--gray-dark)">${slide.category || ''}</span>
+              </div>
+              <h1 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-0.02em;line-height:1.2">${slide.title}</h1>
+              <p style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:20px;line-height:1.5">Conteúdo premium selecionado para você.</p>
+              <div style="display:flex;gap:12px">
+                <button onclick='handleItemClick(${JSON.stringify(slide).replace(/'/g, "\\'")})' class="btn-primary" style="display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-size:14px;border:none;cursor:pointer">
+                  ${icon('play', 18)} Assistir
+                </button>
+                <button class="btn-secondary" style="display:flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-size:14px;cursor:pointer">
+                  ${icon('bookmark', 16)} Minha Lista
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Page Renders
+    function renderHomePage() {
+      const videos = appState.contentData.videos;
+      const books = appState.contentData.books;
+      const audios = appState.contentData.audios;
+      const continueWatching = videos.filter(v => v.progress > 0);
+
+      return `
+        ${createHeroSection()}
+        <div class="fade-in-up">
+          ${continueWatching.length > 0 ? createContentRow('Continue Assistindo', continueWatching, 'clock', createVideoCard) : ''}
+          ${createContentRow('Recomendados para Você', videos.slice(0, 4), 'sparkles', createVideoCard)}
+          ${createContentRow('Livros Recentes', books.filter(b => b.progress > 0), 'book', createVideoCard)}
+          ${createContentRow('Áudios Populares', audios.slice(0, 4), 'headphones', createAudioItem)}
+          ${createContentRow('Novidades', [...videos.slice(3), ...books.slice(2)], 'trending', createVideoCard)}
+        </div>`;
+    }
+
+    function renderVideosPage() {
+      const videos = appState.contentData.videos;
+      const filtered = appState.filters.videos === 'Todos' ? videos : videos.filter(v => v.category === appState.filters.videos);
+      const cats = ["Todos", ...new Set(videos.map(v => v.category).filter(Boolean))];
+
+      return `
+        <h1 class="page-header fade-in-up">Vídeos</h1>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:16px;margin-bottom:24px" class="hide-scrollbar">
+          ${cats.map(cat => `<button class="filter-btn ${appState.filters.videos === cat ? 'active' : ''}" onclick="setState({filters:{...appState.filters,videos:'${cat}'}})">${cat}</button>`).join('')}
+        </div>
+        <div class="grid-4 fade-in-up">
+          ${filtered.length > 0 ? filtered.map(item => `<div class="fade-in-up">${createVideoCard(item)}</div>`).join('') : '<div class="empty-state"><h3>Nenhum vídeo encontrado</h3><p>Adicione vídeos pelo painel Admin</p></div>'}
+        </div>`;
+    }
+
+    function renderBooksPage() {
+      const books = appState.contentData.books;
+      const filtered = appState.filters.books === 'Todos' ? books : books.filter(b => b.category === appState.filters.books);
+      const cats = ["Todos", ...new Set(books.map(b => b.category).filter(Boolean))];
+
+      return `
+        <h1 class="page-header fade-in-up">Livros</h1>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:16px;margin-bottom:24px" class="hide-scrollbar">
+          ${cats.map(cat => `<button class="filter-btn ${appState.filters.books === cat ? 'active-purple' : ''}" onclick="setState({filters:{...appState.filters,books:'${cat}'}})">${cat}</button>`).join('')}
+        </div>
+        <div class="grid-4 fade-in-up">
+          ${filtered.length > 0 ? filtered.map(item => `<div class="fade-in-up">${createVideoCard(item)}</div>`).join('') : '<div class="empty-state"><h3>Nenhum livro encontrado</h3><p>Adicione livros pelo painel Admin</p></div>'}
+        </div>`;
+    }
+
+    function renderAudiosPage() {
+      const audios = appState.contentData.audios;
+      const filtered = appState.filters.audios === 'Todos' ? audios : audios.filter(a => a.category === appState.filters.audios);
+      const cats = ["Todos", ...new Set(audios.map(a => a.category).filter(Boolean))];
+
+      return `
+        <h1 class="page-header fade-in-up">Áudios</h1>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:16px;margin-bottom:24px" class="hide-scrollbar">
+          ${cats.map(cat => `<button class="filter-btn ${appState.filters.audios === cat ? 'active-cyan' : ''}" onclick="setState({filters:{...appState.filters,audios:'${cat}'}})">${cat}</button>`).join('')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px" class="fade-in-up">
+          ${filtered.length > 0 ? filtered.map(item => createAudioItem(item)).join('') : '<div class="empty-state"><h3>Nenhum áudio encontrado</h3><p>Adicione áudios pelo painel Admin</p></div>'}
+        </div>`;
+    }
+
+    function renderExplorePage() {
+      const videos = appState.contentData.videos;
+      const exploreItems = [
+        { icon: 'zap', label: 'Elétrica Industrial', count: `${videos.filter(v=>v.category==='Elétrica').length} vídeos`, gradient: 'linear-gradient(135deg, var(--blue), rgba(0,180,255,0.4))' },
+        { icon: 'layers', label: 'Automação', count: `${videos.filter(v=>v.category==='Automação').length} vídeos`, gradient: 'linear-gradient(135deg, var(--purple), rgba(139,92,246,0.4))' },
+        { icon: 'shield', label: 'Segurança', count: `${videos.filter(v=>v.category==='Segurança').length} conteúdos`, gradient: 'linear-gradient(135deg, var(--red), rgba(239,68,68,0.4))' },
+        { icon: 'activity', label: 'Projetos', count: `${videos.filter(v=>v.category==='Projetos').length} vídeos`, gradient: 'linear-gradient(135deg, var(--green), rgba(16,185,129,0.4))' },
+        { icon: 'bookMarked', label: 'Livros', count: `${appState.contentData.books.length} livros`, gradient: 'linear-gradient(135deg, var(--amber), rgba(245,158,11,0.4))' },
+        { icon: 'radio', label: 'Podcasts', count: `${appState.contentData.audios.length} episódios`, gradient: 'linear-gradient(135deg, var(--cyan), rgba(6,182,212,0.4))' },
+      ];
+
+      return `
+        <h1 class="page-header fade-in-up">Explorar</h1>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:40px" class="fade-in-up">
+          ${exploreItems.map((item, i) => `
+            <div class="card rounded-2xl overflow-hidden" style="background:${item.gradient};padding:24px;display:flex;flex-direction:column;justify-content:flex-end;min-height:160px">
+              <div style="opacity:0.2;margin-bottom:auto">${icon(item.icon, 36)}</div>
+              <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">${item.label}</h3>
+              <p style="font-size:13px;color:rgba(255,255,255,0.6)">${item.count}</p>
+            </div>
+          `).join('')}
+        </div>
+        ${createContentRow('Mais Assistidos', videos, 'trending', createVideoCard)}`;
+    }
+
+    async function renderFavoritesPage() {
+      const favs = await DataService.getFavorites();
+      return `
+        <h1 class="page-header fade-in-up" style="display:flex;align-items:center;gap:8px">${icon('heartFilled')} Favoritos</h1>
+        <div class="grid-4 fade-in-up">
+          ${favs.length > 0 ? favs.map((item, i) => `<div class="fade-in-up" style="animation-delay:${i*0.05}s">${createVideoCard(item)}</div>`).join('') : '<div class="empty-state" style="grid-column:1/-1"><h3>Nenhum favorito ainda</h3><p>Clique no ❤️ para salvar conteúdos</p></div>'}
+        </div>`;
+    }
+
+    function renderHistoryPage() {
+      const history = [...appState.contentData.videos, ...appState.contentData.books.slice(0, 2)];
+      return `
+        <h1 class="page-header fade-in-up" style="display:flex;align-items:center;gap:8px">${icon('clock')} Histórico</h1>
+        <div style="display:flex;flex-direction:column;gap:8px" class="fade-in-up">
+          ${history.length > 0 ? history.map(item => `
+            <div class="list-item" onclick='handleItemClick(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+              <div style="width:112px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)">
+                <img src="${item.thumbnail || item.cover || ''}" style="width:100%;height:100%;object-fit:cover">
+              </div>
+              <div style="flex:1;min-width:0">
+                <h3 style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</h3>
+                <p style="font-size:11px;color:var(--gray-dark);margin-top:2px">${item.author || ''} • ${item.category || ''}</p>
+              </div>
+              <span style="font-size:11px;color:var(--gray-dark)">${item.date || 'Recente'}</span>
+            </div>
+          `).join('') : '<div class="empty-state"><h3>Histórico vazio</h3><p>Assista conteúdos para vê-los aqui</p></div>'}
+        </div>`;
+    }
+
+    function renderPlaylistsPage() {
+      const playlists = appState.contentData.playlists;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px" class="fade-in-up">
+          <h1 class="page-header" style="margin-bottom:0;display:flex;align-items:center;gap:8px">${icon('list')} Playlists</h1>
+          <button class="btn-primary" style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:13px;border:none;cursor:pointer" onclick="showCreatePlaylistModal()">${icon('plus')} Nova Playlist</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px" class="fade-in-up">
+          ${playlists.length > 0 ? playlists.map((pl, i) => `
+            <div class="card rounded-2xl overflow-hidden" style="animation-delay:${i*0.1}s">
+              <div style="position:relative;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(135deg,var(--surface-2),var(--surface-3));display:flex;align-items:center;justify-content:center">
+                ${icon('list', 48, 'style="color:var(--gray-dark);opacity:0.3"')}
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center">
+                  <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,180,255,0.8);display:flex;align-items:center;justify-content:center">${icon('playSmall')}</div>
+                </div>
+              </div>
+              <div style="padding:16px;display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">${pl.name}</h3>
+                  <p style="font-size:12px;color:var(--gray-dark)">${(pl.items || []).length} conteúdos</p>
+                </div>
+                <button class="btn-icon" style="color:var(--red)" onclick="event.stopPropagation();DataService.deletePlaylist('${pl.id}');loadContentData()">${icon('trash', 16)}</button>
+              </div>
+            </div>
+          `).join('') : '<div class="empty-state" style="grid-column:1/-1"><h3>Nenhuma playlist</h3><p>Crie playlists para organizar seus conteúdos</p></div>'}
+        </div>`;
+    }
+
+    function renderDownloadsPage() {
+      return `
+        <h1 class="page-header fade-in-up" style="display:flex;align-items:center;gap:8px">${icon('download')} Downloads</h1>
+        <div class="empty-state fade-in-up">
+          ${icon('download', 48, 'style="display:block;margin:0 auto 16px;color:var(--gray-dark);opacity:0.3"')}
+          <h3>Nenhum download</h3>
+          <p>Downloads estarão disponíveis em breve</p>
+        </div>`;
+    }
+
+    function renderSettingsPage() {
+      const s = appState.settings;
+      return `
+        <h1 class="page-header fade-in-up" style="display:flex;align-items:center;gap:8px">${icon('settings')} Configurações</h1>
+        <div style="display:flex;flex-direction:column;gap:12px;max-width:640px" class="fade-in-up">
+          ${[
+            { label: 'Modo Escuro', desc: 'Interface com tema escuro', key: 'darkMode' },
+            { label: 'Notificações', desc: 'Receber alertas de novo conteúdo', key: 'notifications' },
+            { label: 'Autoplay', desc: 'Reprodução automática de vídeos', key: 'autoplay' },
+          ].map(item => `
+            <div class="list-item" style="justify-content:space-between;cursor:default">
+              <div>
+                <h3 style="font-size:14px;font-weight:600;color:#fff">${item.label}</h3>
+                <p style="font-size:12px;color:var(--gray-dark);margin-top:2px">${item.desc}</p>
+              </div>
+              <div class="toggle-switch ${s[item.key] ? 'on' : ''}" onclick="setState({settings:{...appState.settings,${item.key}:!appState.settings.${item.key}}})">
+                <div class="dot"></div>
+              </div>
+            </div>
+          `).join('')}
+          <div class="list-item" style="cursor:default">
+            <div>
+              <h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:12px">Qualidade Padrão</h3>
+              <div style="display:flex;gap:8px">
+                ${["Auto", "4K", "1080p", "720p"].map(q => `<button class="filter-btn ${s.quality === q ? 'active' : ''}" onclick="setState({settings:{...appState.settings,quality:'${q}'}})">${q}</button>`).join('')}
+              </div>
+            </div>
+          </div>
+          <button class="btn-danger" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:14px;font-size:14px;cursor:pointer" onclick="handleLogout()">
+            ${icon('logOut')} Sair da Conta
+          </button>
+        </div>`;
+    }
+
+    function renderAdminPage() {
+      const videos = appState.contentData.videos;
+      const books = appState.contentData.books;
+      const audios = appState.contentData.audios;
+      const stats = [
+        { label: "Total Vídeos", value: videos.length, icon: "film", color: "var(--purple)", bg: "rgba(139,92,246,0.1)" },
+        { label: "Total Livros", value: books.length, icon: "book", color: "var(--amber)", bg: "rgba(245,158,11,0.1)" },
+        { label: "Total Áudios", value: audios.length, icon: "headphones", color: "var(--green)", bg: "rgba(16,185,129,0.1)" },
+        { label: "Modo", value: appState.isDemoMode ? "Demo" : "Real", icon: "globe", color: appState.isDemoMode ? "var(--amber)" : "var(--blue)", bg: appState.isDemoMode ? "rgba(245,158,11,0.1)" : "rgba(0,180,255,0.1)" },
+      ];
+      const tabs = [
+        { id: 'overview', label: 'Visão Geral' },
+        { id: 'content', label: 'Conteúdo' },
+        { id: 'users', label: 'Usuários' },
+      ];
+
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px" class="fade-in-up">
+          <h1 class="page-header" style="margin-bottom:0;display:flex;align-items:center;gap:8px">${icon('shield')} Painel Admin</h1>
+          <div style="display:flex;gap:6px">
+            ${tabs.map(tab => `<button class="filter-btn ${appState.adminTab === tab.id ? 'active' : ''}" onclick="setState({adminTab:'${tab.id}'})">${tab.label}</button>`).join('')}
+          </div>
+        </div>
+
+        ${appState.adminTab === 'overview' ? `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px" class="fade-in-up">
+            ${stats.map((stat, i) => `
+              <div class="list-item" style="flex-direction:column;align-items:flex-start;gap:0;animation-delay:${i*0.1}s">
+                <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:${stat.bg};color:${stat.color}">${icon(stat.icon, 18)}</div>
+                <p style="font-size:24px;font-weight:800;color:#fff">${stat.value}</p>
+                <p style="font-size:12px;color:var(--gray-dark);margin-top:2px">${stat.label}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px" class="fade-in-up">
+            <div class="list-item" style="flex-direction:column;align-items:stretch;cursor:default">
+              <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:16px">Upload Rápido</h3>
+              ${[
+                { label: "Upload Vídeo", icon: "film", color: "var(--purple)", type: "video" },
+                { label: "Upload Livro", icon: "book", color: "var(--amber)", type: "book" },
+                { label: "Upload Áudio", icon: "music", color: "var(--green)", type: "audio" },
+              ].map(item => `
+                <div class="list-item" style="margin-bottom:8px" onclick="openUploadModal('${item.type}')">
+                  <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${item.color}15;color:${item.color}">${icon(item.icon, 18)}</div>
+                  <span style="font-size:13px;font-weight:500;color:#fff;flex:1">${item.label}</span>
+                  ${icon('upload', 16)}
+                </div>
+              `).join('')}
+            </div>
+            <div class="list-item" style="flex-direction:column;align-items:stretch;cursor:default">
+              <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:16px">Integrações</h3>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div class="list-item" style="cursor:default;background:${firebaseReady ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)'};border-color:${firebaseReady ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}">
+                  <div style="width:32px;height:32px;border-radius:8px;background:${firebaseReady ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'};display:flex;align-items:center;justify-content:center">🔥</div>
+                  <div style="flex:1"><p style="font-size:13px;font-weight:600;color:#fff">Firebase</p><p style="font-size:11px;color:var(--gray-dark)">${firebaseReady ? 'Conectado — Auth + Firestore + Storage' : 'Não configurado — Modo demo ativo'}</p></div>
+                  <span style="font-size:11px;color:${firebaseReady ? 'var(--green)' : 'var(--amber)'}">${firebaseReady ? '✓ Ativo' : '⚠ Demo'}</span>
+                </div>
+                <div class="list-item" style="cursor:default;background:rgba(0,180,255,0.1);border-color:rgba(0,180,255,0.2)">
+                  <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,180,255,0.2);display:flex;align-items:center;justify-content:center">☁️</div>
+                  <div style="flex:1"><p style="font-size:13px;font-weight:600;color:#fff">Cloudinary</p><p style="font-size:11px;color:var(--gray-dark)">Upload de imagens e vídeos</p></div>
+                  <span style="font-size:11px;color:var(--blue)">Pronto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${appState.adminTab === 'content' ? `
+          <div class="fade-in-up">
+            <div style="display:flex;gap:8px;margin-bottom:20px">
+              <button class="btn-primary" style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:13px;border:none;cursor:pointer" onclick="openUploadModal('video')">${icon('plus')} Novo Vídeo</button>
+              <button class="btn-primary" style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:13px;border:none;cursor:pointer;background:var(--purple)" onclick="openUploadModal('book')">${icon('plus')} Novo Livro</button>
+              <button class="btn-primary" style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:13px;border:none;cursor:pointer;background:var(--cyan)" onclick="openUploadModal('audio')">${icon('plus')} Novo Áudio</button>
+            </div>
+            <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px">Vídeos (${videos.length})</h3>
+            <div style="overflow-x:auto;margin-bottom:24px;border-radius:12px;border:1px solid var(--border)">
+              <table class="admin-table">
+                <thead><tr><th>Thumbnail</th><th>Título</th><th>Categoria</th><th>Duração</th><th>Ações</th></tr></thead>
+                <tbody>
+                  ${videos.map(v => `
+                    <tr>
+                      <td><img src="${v.thumbnail || ''}" style="width:60px;height:34px;border-radius:6px;object-fit:cover"></td>
+                      <td style="color:#fff;font-weight:500">${v.title}</td>
+                      <td><span class="badge badge-blue">${v.category || '-'}</span></td>
+                      <td>${v.duration || '-'}</td>
+                      <td><button class="btn-icon" style="color:var(--red);width:32px;height:32px" onclick="deleteContent('video','${v.id}')">${icon('trash', 16)}</button></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px">Livros (${books.length})</h3>
+            <div style="overflow-x:auto;margin-bottom:24px;border-radius:12px;border:1px solid var(--border)">
+              <table class="admin-table">
+                <thead><tr><th>Capa</th><th>Título</th><th>Autor</th><th>Páginas</th><th>Ações</th></tr></thead>
+                <tbody>
+                  ${books.map(b => `
+                    <tr>
+                      <td><img src="${b.cover || ''}" style="width:40px;height:56px;border-radius:6px;object-fit:cover"></td>
+                      <td style="color:#fff;font-weight:500">${b.title}</td>
+                      <td>${b.author || '-'}</td>
+                      <td>${b.pages || '-'}</td>
+                      <td><button class="btn-icon" style="color:var(--red);width:32px;height:32px" onclick="deleteContent('book','${b.id}')">${icon('trash', 16)}</button></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px">Áudios (${audios.length})</h3>
+            <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border)">
+              <table class="admin-table">
+                <thead><tr><th>Capa</th><th>Título</th><th>Categoria</th><th>Duração</th><th>Ações</th></tr></thead>
+                <tbody>
+                  ${audios.map(a => `
+                    <tr>
+                      <td><img src="${a.cover || ''}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"></td>
+                      <td style="color:#fff;font-weight:500">${a.title}</td>
+                      <td><span class="badge badge-cyan">${a.category || '-'}</span></td>
+                      <td>${a.duration || '-'}</td>
+                      <td><button class="btn-icon" style="color:var(--red);width:32px;height:32px" onclick="deleteContent('audio','${a.id}')">${icon('trash', 16)}</button></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ` : ''}
+
+        ${appState.adminTab === 'users' ? `
+          <div class="fade-in-up">
+            <div class="empty-state">
+              ${icon('users', 48, 'style="display:block;margin:0 auto 16px;color:var(--gray-dark);opacity:0.3"')}
+              <h3>Gerenciamento de Usuários</h3>
+              <p>${firebaseReady ? 'Funcionalidade disponível com Firebase Auth' : 'Disponível quando Firebase for configurado'}</p>
+            </div>
+          </div>
+        ` : ''}`;
+    }
+
+    // Video Player
+    function renderVideoPlayer() {
+      const video = appState.selectedItem;
+      const vp = appState.videoPlayer;
+      const totalSeconds = 1455;
+      if (!video) return '';
+
+      return `
+        <div style="min-height:100vh;background:#000;padding-top:64px">
+          <button onclick="handleBack()" style="position:fixed;top:80px;left:16px;z-index:30;padding:10px;border-radius:12px;background:rgba(10,10,16,0.8);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--gray);cursor:pointer;transition:all 0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(0,180,255,0.2)'" onmouseout="this.style.color='var(--gray)';this.style.borderColor='var(--border)'">
+            ${icon('chevronLeft')}
+          </button>
+          <div style="position:relative;aspect-ratio:16/9;background:var(--surface);overflow:hidden;cursor:pointer" onmousemove="this.querySelector('.controls-overlay').style.opacity=1" onmouseleave="if(appState.videoPlayer.isPlaying)this.querySelector('.controls-overlay').style.opacity=0">
+            <img src="${video.thumbnail || video.cover || ''}" style="width:100%;height:100%;object-fit:cover;${vp.isPlaying ? 'opacity:0.7;transform:scale(1.05)' : ''};transition:all 0.7s">
+            ${vp.isPlaying ? `<div style="position:absolute;inset:0;pointer-events:none">${Array.from({length: 15}, (_, i) => `<div style="position:absolute;width:1px;background:rgba(0,180,255,0.15);bottom:0;left:${(i+1)*6}%;height:${Math.random()*100+20}px;animation:waveAnim ${Math.random()*2+1.5}s ease-in-out infinite;animation-delay:${Math.random()*2}s"></div>`).join('')}</div>` : ''}
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 30%,transparent 70%,rgba(0,0,0,0.3) 100%)" class="controls-overlay"></div>
+            <div class="controls-overlay" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:20px;opacity:1;transition:opacity 0.3s">
+              <div><h3 style="font-size:18px;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)">${video.title}</h3><p style="font-size:13px;color:rgba(255,255,255,0.7);text-shadow:0 1px 4px rgba(0,0,0,0.8)">${video.author || ''} • ${video.views || ''} visualizações</p></div>
+              ${!vp.isPlaying ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation();setState({videoPlayer:{...appState.videoPlayer,isPlaying:true}})" style="width:72px;height:72px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 40px rgba(0,180,255,0.4);transition:transform 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">${icon('play', 32)}</div></div>` : ''}
+              <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <span style="font-size:12px;font-family:monospace;color:#fff;min-width:40px">${formatTime(vp.currentTime)}</span>
+                  <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;cursor:pointer;position:relative" onclick="event.stopPropagation()">
+                    <div style="height:100%;width:${(vp.currentTime/totalSeconds)*100}%;background:var(--blue);border-radius:2px;position:relative"><div style="position:absolute;right:-6px;top:-4px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(0,180,255,0.5)"></div></div>
+                  </div>
+                  <span style="font-size:12px;font-family:monospace;color:var(--gray-dark);min-width:40px">${video.duration || ''}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between" onclick="event.stopPropagation()">
+                  <div style="display:flex;align-items:center;gap:16px">
+                    <button onclick="event.stopPropagation();setState({videoPlayer:{...appState.videoPlayer,isPlaying:!appState.videoPlayer.isPlaying}})" style="background:none;border:none;color:#fff;cursor:pointer;padding:4px">${vp.isPlaying ? icon('pause', 22) : icon('play', 22)}</button>
+                    <button style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;padding:4px">${icon('skipForward')}</button>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button onclick="event.stopPropagation();setState({videoPlayer:{...appState.videoPlayer,isMuted:!appState.videoPlayer.isMuted}})" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;padding:4px">${vp.isMuted ? icon('volumeX') : icon('volume')}</button>
+                      <div style="width:80px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;cursor:pointer"><div style="height:100%;width:${vp.isMuted?0:vp.volume}%;background:rgba(255,255,255,0.5);border-radius:2px"></div></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <select onchange="setState({videoPlayer:{...appState.videoPlayer,speed:parseFloat(this.value)}})" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:rgba(255,255,255,0.5);padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer">
+                      ${[0.25,0.5,0.75,1,1.25,1.5,1.75,2].map(s => `<option value="${s}" ${vp.speed===s?'selected':''}>${s}x</option>`).join('')}
+                    </select>
+                    <button style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;padding:4px">${icon('maximize')}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="max-width:800px;margin:0 auto;padding:24px 16px">
+            <h1 style="font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">${video.title}</h1>
+            <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--gray-dark);margin-bottom:20px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:4px">${icon('eye', 14)} ${video.views || '0'}</span>
+              <span>${video.date || ''}</span>
+              ${video.category ? `<span class="badge badge-blue">${video.category}</span>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+              <button onclick="setState({videoPlayer:{...appState.videoPlayer,liked:!appState.videoPlayer.liked}})" class="filter-btn ${vp.liked ? 'active' : ''}" style="display:flex;align-items:center;gap:6px">${icon('thumbsUp')} ${vp.liked ? 'Curtido' : 'Curtir'} ${video.likes ? `<span style="color:var(--gray-dark)">${video.likes}</span>` : ''}</button>
+              <button class="filter-btn" style="display:flex;align-items:center;gap:6px">${icon('share')} Compartilhar</button>
+              <button class="filter-btn" style="display:flex;align-items:center;gap:6px">${icon('bookmark')} Salvar</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+              <div class="avatar">JR</div>
+              <div style="flex:1"><p style="font-weight:600;color:#fff">JR - Desmistificando a Elétrica</p><p style="font-size:13px;color:var(--gray-dark)">1.2M inscritos</p></div>
+              <button class="btn-primary" style="padding:10px 24px;border-radius:12px;font-size:13px;border:none;cursor:pointer">Inscrever-se</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Book Reader
+    function renderBookReader() {
+      const book = appState.selectedItem;
+      const br = appState.bookReader;
+      if (!book) return '';
+      const totalPages = book.pages || 300;
+      const currentProgress = ((br.currentPage + 1) / totalPages) * 100;
+      const texts = [
+        "A engenharia elétrica é uma disciplina fundamental que abrange o estudo e a aplicação da eletricidade, eletrônica e eletromagnetismo. Desde a geração até o consumo final de energia, esta ciência transforma nossa sociedade de maneiras profundas e constantes.",
+        "Os circuitos elétricos formam a base de todos os sistemas eletrônicos modernos. Um circuito é um caminho fechado através do qual a corrente elétrica pode fluir, composto por fontes de energia, condutores e componentes que controlam o fluxo de elétrons.",
+        "A Lei de Ohm é um dos princípios mais fundamentais da eletricidade. Ela estabelece que a corrente que flui através de um condutor é diretamente proporcional à tensão aplicada e inversamente proporcional à resistência do material.",
+        "Os transformadores são dispositivos eletromagnéticos que permitem a transferência de energia elétrica entre circuitos através de indução eletromagnética. Eles são essenciais para a distribuição de energia em larga escala.",
+      ];
+
+      return `
+        <div style="min-height:100vh;background:var(--surface-2);padding-top:64px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)">
+            <button onclick="handleBack()" style="background:none;border:none;color:var(--gray);cursor:pointer;padding:8px;border-radius:10px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--gray)'">${icon('chevronLeft')}</button>
+            <div style="text-align:center"><h3 style="font-size:14px;font-weight:600;color:#fff">${book.title}</h3><p style="font-size:11px;color:var(--gray-dark)">${book.author || ''}</p></div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <button onclick="setState({bookReader:{...appState.bookReader,zoom:Math.max(0.5,appState.bookReader.zoom-0.1)}})" style="background:none;border:none;color:var(--gray);cursor:pointer;padding:8px;border-radius:8px;font-size:14px">A-</button>
+              <span style="font-size:11px;color:var(--gray-dark);font-family:monospace;padding:0 8px">${Math.round(br.zoom*100)}%</span>
+              <button onclick="setState({bookReader:{...appState.bookReader,zoom:Math.min(2,appState.bookReader.zoom+0.1)}})" style="background:none;border:none;color:var(--gray);cursor:pointer;padding:8px;border-radius:8px;font-size:14px">A+</button>
+              <button onclick="setState({bookReader:{...appState.bookReader,bookmarked:!appState.bookReader.bookmarked}})" style="background:none;border:none;color:${br.bookmarked?'var(--blue)':'var(--gray)'};cursor:pointer;padding:8px;border-radius:8px">${icon('bookmarkCheck')}</button>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px;overflow-y:auto">
+            <div style="max-width:640px;width:100%;transform:scale(${br.zoom});transform-origin:center center">
+              <div style="background:var(--surface-3);border-radius:20px;padding:48px 56px;border:1px solid var(--border)">
+                <span style="font-size:10px;color:var(--gray-dark);text-transform:uppercase;letter-spacing:0.2em;font-weight:600">Capítulo ${Math.floor(br.currentPage/20)+1}</span>
+                <div style="margin-top:32px;font-size:16px;line-height:1.8;color:rgba(255,255,255,0.75);text-align:justify">${texts[br.currentPage % texts.length]}<br><br>${texts[(br.currentPage+1) % texts.length]}<br><br>${texts[(br.currentPage+2) % texts.length]}</div>
+                <div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--gray-dark)"><span>Página ${br.currentPage + 1} de ${totalPages}</span><span>${Math.round(currentProgress)}%</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 20px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:16px;max-width:640px;margin:0 auto">
+              <button onclick="setState({bookReader:{...appState.bookReader,currentPage:Math.max(0,appState.bookReader.currentPage-1)}})" ${br.currentPage===0?'disabled style="opacity:0.2"':''} class="btn-icon">${icon('chevronLeft')}</button>
+              <div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px"><div style="height:100%;width:${currentProgress}%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px;transition:width 0.5s"></div></div>
+              <button onclick="setState({bookReader:{...appState.bookReader,currentPage:Math.min(${totalPages-1},appState.bookReader.currentPage+1)}})" ${br.currentPage===totalPages-1?'disabled style="opacity:0.2"':''} class="btn-icon">${icon('chevronRight')}</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Audio Player
+    function renderAudioPlayer() {
+      const audio = appState.selectedItem;
+      const ap = appState.audioPlayer;
+      if (!audio) return '';
+      const totalSeconds = 2538;
+      const progress = (ap.currentTime / totalSeconds) * 100;
+
+      return `
+        <div style="min-height:100vh;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative">
+          <button onclick="handleBack()" style="position:fixed;top:80px;left:16px;z-index:30;padding:10px;border-radius:12px;background:rgba(10,10,16,0.8);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--gray);cursor:pointer" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--gray)'">${icon('chevronLeft')}</button>
+          <div style="width:100%;max-width:400px;text-align:center">
+            <div style="position:relative;margin-bottom:40px">
+              <div style="aspect-ratio:1;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:1px solid var(--border)">
+                <img src="${audio.cover || audio.thumbnail || ''}" style="width:100%;height:100%;object-fit:cover">
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%)"></div>
+              </div>
+              ${ap.isPlaying ? `<div style="position:absolute;inset:-20px;border-radius:30px;background:rgba(0,180,255,0.05);filter:blur(30px);animation:pulse 3s ease-in-out infinite"></div>` : ''}
+            </div>
+            <h2 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">${audio.title}</h2>
+            <p style="font-size:14px;color:var(--gray-dark)">${audio.category || ''} • ${audio.duration || ''}</p>
+            <div style="margin:32px 0">
+              <div class="waveform-container">
+                ${Array.from({length: 48}, (_, i) => `<div class="waveform-bar ${ap.isPlaying?'active playing':''}" style="height:${ap.isPlaying?Math.random()*36+4:4}px;animation-delay:${i*0.03}s"></div>`).join('')}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+              <span style="font-size:11px;color:var(--gray-dark);font-family:monospace;min-width:36px;text-align:right">${formatTime(ap.currentTime)}</span>
+              <div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;cursor:pointer"><div style="height:100%;width:${progress}%;background:var(--blue);border-radius:2px;position:relative"><div style="position:absolute;right:-5px;top:-3px;width:10px;height:10px;border-radius:50%;background:#fff"></div></div></div>
+              <span style="font-size:11px;color:var(--gray-dark);font-family:monospace;min-width:36px">${audio.duration || ''}</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:32px">
+              <button style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:8px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--gray-dark)'">${icon('skipBack')}</button>
+              <button onclick="setState({audioPlayer:{...appState.audioPlayer,isPlaying:!appState.audioPlayer.isPlaying}})" style="width:64px;height:64px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 0 30px rgba(0,180,255,0.3)" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">${ap.isPlaying ? icon('pause') : icon('play')}</button>
+              <button style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:8px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--gray-dark)'">${icon('skipForward')}</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:24px">
+              <button onclick="setState({audioPlayer:{...appState.audioPlayer,liked:!appState.audioPlayer.liked}})" style="background:none;border:none;color:${ap.liked?'var(--red)':'var(--gray-dark)'};cursor:pointer;padding:8px">${ap.liked ? icon('heartFilled') : icon('heart')}</button>
+              <button onclick="setState({audioPlayer:{...appState.audioPlayer,saved:!appState.audioPlayer.saved}})" style="background:none;border:none;color:${ap.saved?'var(--blue)':'var(--gray-dark)'};cursor:pointer;padding:8px">${ap.saved ? icon('bookmarkFilled') : icon('bookmark')}</button>
+              <button style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:8px">${icon('share')}</button>
+              <button style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:8px">${icon('repeat')}</button>
+              <button style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:8px">${icon('shuffle')}</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+              <button onclick="setState({audioPlayer:{...appState.audioPlayer,isMuted:!appState.audioPlayer.isMuted}})" style="background:none;border:none;color:var(--gray-dark);cursor:pointer;padding:4px">${ap.isMuted ? icon('volumeX') : icon('volume')}</button>
+              <div style="width:100px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px"><div style="height:100%;width:${ap.isMuted?0:ap.volume}%;background:rgba(255,255,255,0.3);border-radius:2px"></div></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Upload Modal
+    function renderUploadModal() {
+      if (!appState.showUploadModal) return '';
+      const type = appState.uploadType;
+
+      return `
+        <div class="overlay-center" onclick="setState({showUploadModal:false})">
+          <div style="width:100%;max-width:520px;background:var(--surface-2);border:1px solid var(--border);border-radius:24px;padding:32px;margin:20px" onclick="event.stopPropagation()">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+              <h2 style="font-size:18px;font-weight:700;color:#fff">Upload ${type === 'video' ? 'Vídeo' : type === 'book' ? 'Livro' : 'Áudio'}</h2>
+              <button class="btn-icon" onclick="setState({showUploadModal:false})">${icon('x')}</button>
+            </div>
+
+            <!-- Cloudinary Upload -->
+            <div class="upload-area" id="uploadArea" ondragover="this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleFileDrop(event)" onclick="document.getElementById('fileInput').click()">
+              ${icon(type === 'video' ? 'cloud' : 'image')}
+              <p style="font-size:14px;font-weight:500;color:#fff;margin-bottom:4px">Arraste ou clique para selecionar</p>
+              <p style="font-size:12px;color:var(--gray-dark)">${type === 'video' ? 'MP4, WebM, MOV' : type === 'book' ? 'PDF, EPUB' : 'MP3, WAV, OGG'}</p>
+              <input type="file" id="fileInput" style="display:none" accept="${type==='video'?'video/*':type==='book'?'application/pdf,.epub':'audio/*'}" onchange="handleFileSelect(event)">
+            </div>
+
+            <div id="uploadPreview" style="display:none;margin:16px 0">
+              <p style="font-size:13px;color:var(--green);display:flex;align-items:center;gap:6px">${icon('check', 16)} Arquivo selecionado: <strong id="fileName" style="color:#fff"></strong></p>
+            </div>
+
+            <!-- Cloudinary Button -->
+            <button class="cloudinary-upload-btn" style="width:100%;justify-content:center;margin-bottom:16px" onclick="openCloudinaryUpload()">
+              ☁️ Upload via Cloudinary
+            </button>
+
+            <div class="form-group">
+              <label>Título</label>
+              <input type="text" id="uploadTitle" placeholder="Título do conteúdo">
+            </div>
+            <div class="form-group">
+              <label>Autor / Canal</label>
+              <input type="text" id="uploadAuthor" placeholder="Nome do autor">
+            </div>
+            <div class="form-group">
+              <label>Categoria</label>
+              <input type="text" id="uploadCategory" placeholder="Ex: Elétrica, Automação">
+            </div>
+            ${type === 'video' || type === 'audio' ? `
+              <div class="form-group">
+                <label>Duração</label>
+                <input type="text" id="uploadDuration" placeholder="Ex: 24:15">
+              </div>
+            ` : ''}
+            ${type === 'book' ? `
+              <div class="form-group">
+                <label>Número de Páginas</label>
+                <input type="text" id="uploadPages" placeholder="Ex: 324">
+              </div>
+            ` : ''}
+            <div style="display:flex;gap:8px;margin-top:20px">
+              <button class="btn-primary" style="flex:1;padding:12px;border-radius:12px;font-size:14px;border:none;cursor:pointer" onclick="submitUpload()">Publicar</button>
+              <button class="btn-secondary" style="padding:12px 20px;border-radius:12px;font-size:14px" onclick="setState({showUploadModal:false})">Cancelar</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Playlist Modal
+    function renderPlaylistModal() {
+      if (!appState.showPlaylistModal) return '';
+      return `
+        <div class="overlay-center" onclick="setState({showPlaylistModal:false})">
+          <div style="width:100%;max-width:420px;background:var(--surface-2);border:1px solid var(--border);border-radius:24px;padding:32px;margin:20px" onclick="event.stopPropagation()">
+            <h2 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:20px">Nova Playlist</h2>
+            <div class="form-group">
+              <label>Nome da Playlist</label>
+              <input type="text" id="playlistName" placeholder="Ex: Elétrica Básica">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px">
+              <button class="btn-primary" style="flex:1;padding:12px;border-radius:12px;font-size:14px;border:none;cursor:pointer" onclick="createPlaylist()">Criar</button>
+              <button class="btn-secondary" style="padding:12px 20px;border-radius:12px;font-size:14px" onclick="setState({showPlaylistModal:false})">Cancelar</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Main render
+    function render() {
+      const app = document.getElementById('app');
+
+      if (appState.selectedItem) {
+        if (appState.activeItemType === 'video') {
+          app.innerHTML = renderHeader() + renderVideoPlayer();
+        } else if (appState.activeItemType === 'book') {
+          app.innerHTML = renderBookReader();
+        } else {
+          app.innerHTML = renderAudioPlayer();
+        }
+      } else {
+        const offset = appState.sidebarOpen ? (window.innerWidth >= 1024 ? 256 : 0) : 0;
+        app.innerHTML = `
+          <div class="ambient-bg"></div>
+          ${renderSidebar()}
+          ${renderHeader()}
+          ${renderUploadModal()}
+          ${renderPlaylistModal()}
+          <main class="page-content" style="margin-left:${offset}px;transition:margin-left 0.3s">
+            ${renderPage()}
+          </main>`;
+      }
+
+      // Video timer
+      if (appState.selectedItem && appState.activeItemType === 'video' && appState.videoPlayer.isPlaying) {
+        if (!window._videoTimer) {
+          window._videoTimer = setInterval(() => {
+            if (appState.selectedItem && appState.activeItemType === 'video' && appState.videoPlayer.isPlaying) {
+              appState.videoPlayer.currentTime = Math.min(appState.videoPlayer.currentTime + 1, 1455);
+              render();
+            }
+          }, 1000);
+        }
+      } else if (!appState.selectedItem || appState.activeItemType !== 'video') {
+        clearInterval(window._videoTimer);
+        window._videoTimer = null;
+      }
+
+      // Audio timer
+      if (appState.selectedItem && appState.activeItemType === 'audio' && appState.audioPlayer.isPlaying) {
+        if (!window._audioTimer) {
+          window._audioTimer = setInterval(() => {
+            if (appState.selectedItem && appState.activeItemType === 'audio' && appState.audioPlayer.isPlaying) {
+              appState.audioPlayer.currentTime = Math.min(appState.audioPlayer.currentTime + 1, 2538);
+              render();
+            }
+          }, 1000);
+        }
+      } else if (!appState.selectedItem || appState.activeItemType !== 'audio') {
+        clearInterval(window._audioTimer);
+        window._audioTimer = null;
+      }
+    }
+
+    function renderPage() {
+      switch(appState.currentPage) {
+        case 'home': return renderHomePage();
+        case 'videos': return renderVideosPage();
+        case 'books': return renderBooksPage();
+        case 'audios': return renderAudiosPage();
+        case 'explore': return renderExplorePage();
+        case 'favorites': return renderFavoritesPage();
+        case 'history': return renderHistoryPage();
+        case 'playlists': return renderPlaylistsPage();
+        case 'downloads': return renderDownloadsPage();
+        case 'settings': return renderSettingsPage();
+        case 'admin': return renderAdminPage();
+        default: return renderHomePage();
+      }
+    }
+
+    // ============================================
+    // 🎮 EVENT HANDLERS
+    // ============================================
+
+    async function loadContentData() {
+      try {
+        const [videos, books, audios, playlists] = await Promise.all([
+          DataService.getVideos(),
+          DataService.getBooks(),
+          DataService.getAudios(),
+          DataService.getPlaylists()
+        ]);
+        setState({ contentData: { videos, books, audios, playlists } });
+      } catch (e) {
+        console.error('Erro ao carregar dados:', e);
+      }
+    }
+
+    // Auth handlers
+    function switchAuthTab(tab) {
+      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+
+      if (!email || !password) {
+        errorEl.textContent = 'Preencha todos os campos';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      try {
+        const user = await AuthService.login(email, password);
+        setState({ currentUser: user });
+        showToast(`Bem-vindo, ${user.displayName || user.email?.split('@')[0]}!`, 'success');
+        await loadContentData();
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.add('show');
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function handleRegister() {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const errorEl = document.getElementById('regError');
+
+      if (!name || !email || !password) {
+        errorEl.textContent = 'Preencha todos os campos';
+        errorEl.classList.add('show');
+        return;
+      }
+      if (password.length < 6) {
+        errorEl.textContent = 'Senha deve ter no mínimo 6 caracteres';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      try {
+        const user = await AuthService.register(email, password, name);
+        setState({ currentUser: user });
+        showToast(`Conta criada com sucesso! Bem-vindo, ${name}!`, 'success');
+        await loadContentData();
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.add('show');
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function handleGoogleLogin() {
+      try {
+        const user = await AuthService.googleLogin();
+        setState({ currentUser: user });
+        showToast(`Login com Google realizado!`, 'success');
+        await loadContentData();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function handleLogout() {
+      await AuthService.logout();
+      setState({ currentUser: null, currentPage: 'home' });
+      showToast('Você saiu da conta', 'info');
+    }
+
+    // Upload handlers
+    function openUploadModal(type) {
+      setState({ showUploadModal: true, uploadType: type });
+    }
+
+    function openCloudinaryUpload() {
+      CloudinaryService.initWidget(
+        (result) => {
+          // Success
+          document.getElementById('fileName').textContent = result.secure_url;
+          document.getElementById('uploadPreview').style.display = 'block';
+          document.getElementById('uploadTitle').value = result.original_filename || '';
+          showToast('Upload concluído no Cloudinary!', 'success');
+        },
+        (error) => {
+          showToast('Erro no upload: ' + error.message, 'error');
+        }
+      );
+      CloudinaryService.open();
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('uploadPreview').style.display = 'block';
+      }
+    }
+
+    function handleFileDrop(event) {
+      event.preventDefault();
+      event.target.closest('.upload-area').classList.remove('dragover');
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('uploadPreview').style.display = 'block';
+      }
+    }
+
+    async function submitUpload() {
+      const title = document.getElementById('uploadTitle').value.trim();
+      const author = document.getElementById('uploadAuthor').value.trim();
+      const category = document.getElementById('uploadCategory').value.trim();
+
+      if (!title) {
+        showToast('Preencha o título', 'error');
+        return;
+      }
+
+      const type = appState.uploadType;
+
+      try {
+        if (type === 'video') {
+          const duration = document.getElementById('uploadDuration')?.value || '';
+          const thumbInput = document.getElementById('uploadThumb')?.value || '';
+          await DataService.addVideo({
+            title, author, category, duration,
+            thumbnail: thumbInput || 'https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/146f76c36-ff85-4ae7-8431-2be22742b1c0.png'
+          });
+          showToast('Vídeo publicado com sucesso!', 'success');
+        } else if (type === 'book') {
+          const pages = document.getElementById('uploadPages')?.value || '0';
+          const coverInput = document.getElementById('uploadCover')?.value || '';
+          await DataService.addBook({
+            title, author, category,
+            pages: parseInt(pages) || 0,
+            cover: coverInput || 'https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/1096348b1-ebaf-4f4c-b2e3-3b08422bd92e.png'
+          });
+          showToast('Livro publicado com sucesso!', 'success');
+        } else if (type === 'audio') {
+          const duration = document.getElementById('uploadDuration')?.value || '';
+          const coverInput = document.getElementById('uploadAudioCover')?.value || '';
+          await DataService.addAudio({
+            title, author, category, duration,
+            cover: coverInput || 'https://image.qwenlm.ai/public_source/1b0f8a1c-4cc0-422f-a757-b944a1ccfabe/18643490d-1a86-4ed9-abfd-b01ec8f6789f.png'
+          });
+          showToast('Áudio publicado com sucesso!', 'success');
+        }
+
+        setState({ showUploadModal: false });
+        await loadContentData();
+      } catch (e) {
+        showToast('Erro ao publicar: ' + e.message, 'error');
+      }
+    }
+
+    async function deleteContent(type, id) {
+      if (!confirm('Tem certeza que deseja excluir?')) return;
+      try {
+        if (type === 'video') await DataService.deleteVideo(id);
+        else if (type === 'book') await DataService.deleteBook(id);
+        else if (type === 'audio') await DataService.deleteAudio(id);
+        showToast('Conteúdo excluído', 'success');
+        await loadContentData();
+      } catch (e) {
+        showToast('Erro ao excluir', 'error');
+      }
+    }
+
+    function showCreatePlaylistModal() {
+      setState({ showPlaylistModal: true });
+    }
+
+    async function createPlaylist() {
+      const name = document.getElementById('playlistName').value.trim();
+      if (!name) {
+        showToast('Digite o nome da playlist', 'error');
+        return;
+      }
+      await DataService.createPlaylist(name, []);
+      setState({ showPlaylistModal: false });
+      showToast('Playlist criada!', 'success');
+      await loadContentData();
+    }
+
+    function handleSearchInput(value) {
+      setState({ searchQuery: value });
+    }
+
+    // ============================================
+    //  INIT
+    // ============================================
+    const app = document.getElementById('app');
+    app.innerHTML = renderLoadingScreen();
+
+    // Auth state listener
+    AuthService.onAuthChange(async (user) => {
+      setState({ currentUser: user });
+      if (user) {
+        await loadContentData();
+      } else {
+        // Load demo data even without auth
+        await loadContentData();
+      }
+
+      // Hide loading screen
+      setTimeout(() => {
+        const ls = document.getElementById('loadingScreen');
+        if (ls) {
+          ls.classList.add('hidden');
+          setTimeout(() => { ls.remove(); render(); }, 600);
+        }
+      }, 1500);
+    });
+
+    // Window resize handler for sidebar
+    window.addEventListener('resize', () => {
+      if (window.innerWidth < 1024 && appState.sidebarOpen) {
+        setState({ sidebarOpen: false });
+      }
+    });
+  </script>
+</body>
+</html>
+
