@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,6 +21,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .login-logo .icon img{width:100%;height:100%;object-fit:cover;border-radius:18px}
 .login-logo h1{font-size:26px;font-weight:800;background:linear-gradient(135deg,#fff,var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .login-logo p{font-size:11px;color:var(--text3);margin-top:6px}
+.tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--bg3);border-radius:10px;padding:3px;position:relative;z-index:1}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border:none;background:none;transition:all .2s}
+.tab.on{background:var(--primary);color:#000;font-weight:600}
+.tab.on2{background:var(--secondary);color:#fff;font-weight:600}
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500}
 .fg input,.fg select,.fg textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:#fff;font-size:13px;outline:none;width:100%;font-family:inherit;transition:border-color .2s}
@@ -37,7 +42,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#0a0a14;border-right:1px solid var(--border);z-index:50;overflow-y:auto;transition:width .3s}
 .sidebar.shut{width:64px}.sidebar.shut .ntxt{display:none}
 .side-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;height:56px}
-.side-head .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:16px}
+.side-head .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:16px;overflow:hidden}
+.side-head .logo img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 .side-head h2{font-size:14px;font-weight:800;color:#fff;white-space:nowrap}
 .side-head span{font-size:8px;color:var(--text3);text-transform:uppercase;display:block}
 .side-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
@@ -46,7 +52,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .nav-i.act{background:rgba(0,180,255,.08);color:var(--primary);border:1px solid rgba(0,180,255,.15)}
 .side-foot{padding:10px 16px;border-top:1px solid var(--border)}
 .adm-user{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:var(--bg3)}
-.adm-user .ava{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.adm-user .ava{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;overflow:hidden}
+.adm-user .ava img{width:100%;height:100%;object-fit:cover;border-radius:8px}
 .adm-user .info{flex:1;min-width:0}.adm-user .info .nm{font-size:11px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .adm-user .info .rl{font-size:8px;color:var(--text3);text-transform:uppercase}
 .main{margin-left:240px;min-height:100vh;transition:margin-left .3s}.main.exp{margin-left:64px}
@@ -164,7 +171,12 @@ td{padding:10px 16px;font-size:12px;color:var(--text2);border-bottom:1px solid v
 .cal-legend{display:flex;gap:12px;margin-top:10px;font-size:10px;color:var(--text3)}
 .cal-legend span{display:flex;align-items:center;gap:4px}
 .cal-legend .dot{width:10px;height:10px;border-radius:3px}
-.p-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:800;color:#fff;font-size:28px}
+.p-logo{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:800;color:#fff;font-size:32px;overflow:hidden;cursor:pointer;position:relative}
+.p-logo img{width:100%;height:100%;object-fit:cover;border-radius:20px}
+.p-logo .overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.p-logo:hover .overlay{opacity:1}
+.p-logo .overlay span{font-size:10px;color:#fff;font-weight:600}
+.img-upload{display:none}
 @media(max-width:1023px){.sidebar{transform:translateX(-100%);width:240px!important}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important}.hdr{left:0!important}.mbg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:45;display:none}.mbg.show{display:block}}
 @media(max-width:767px){.pg{padding:56px 12px 24px}.ga{grid-template-columns:1fr}.gf iframe{height:500px}.src-select{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -315,6 +327,23 @@ function togSb(){S.sb=!S.sb;showPage();}
 function clkIt(item){S.it=item;S.ip=item.tp||'video';if(S.user)trackActivity(S.user.id);showPage();}
 function goBk(){S.it=null;S.ip=null;showPage();}
 function stM(){S.su=false;S.sc=false;S.sa=false;S.sal=false;S.saq=false;S.ei=null;S.et='';S.ec=null;S.eu=null;S.eb=null;S.ebt='';S.cp=false;S.ct=null;S.cn='';S.sq2=false;S.editCo=null;S.editCat=false;S.editCatIdx=-1;S.editCatName='';S.manEnroll=null;S.manEnrollUserId='';S.manEnrollDur='';S.manEnrollDurUnit='days';S.enrollTab='view';showPage();}
+function handleLogoUpload(file){
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+PLATFORM.logoImg=e.target.result;
+ld6();
+showPage();
+toast('Logo da imagem atualizado!','ok');
+};
+reader.readAsDataURL(file);
+}
+function removeLogoImg(){
+PLATFORM.logoImg='';
+ld6();
+showPage();
+toast('Logo removido, voltando ao padrao','ok');
+}
 function doSubUp(){
 var t=document.getElementById('uT'),a=document.getElementById('uA'),c=document.getElementById('uC'),url=document.getElementById('uUrl');
 if(!t||!url||!t.value.trim()||!url.value.trim()){toast('Preencha titulo e URL','er');return;}
@@ -567,12 +596,15 @@ app.innerHTML=mbg+sb+'<div class="main'+(S.sb?'':' exp')+'">'+hd+'<div class="pg
 function rLogin(){
 var logoImg=PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'" alt="'+esc(PLATFORM.name)+'">':PLATFORM.logo;
 var h='<div class="login-wrap"><div class="login-card"><div class="login-logo"><div class="icon">'+logoImg+'</div><h1>'+esc(PLATFORM.name)+'</h1><p>'+(PLATFORM.tagline||'Plataforma de Conteudo')+'</p></div>';
-h+='<div class="fg"><label>Email</label><input type="email" id="le" placeholder="seu@email"></div><div class="fg"><label>Senha</label><input type="password" id="lp" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn btn1" style="width:100%;justify-content:center" onclick="doLogin()">Entrar</button><div style="text-align:center;font-size:10px;color:#444;margin-top:12px;padding-top:12px;border-top:1px solid #1a1a2e">Solicite credenciais ao administrador</div>';
+h+='<div class="tabs"><button class="tab'+(S.at==='user'?' on':'')+'" onclick="S.at=\'user\';showPage()">Usuario</button><button class="tab'+(S.at==='admin'?' on2':'')+'" onclick="S.at=\'admin\';showPage()">Admin</button></div>';
+if(S.at==='user'){h+='<div class="fg"><label>Email</label><input type="email" id="le" placeholder="seu@email"></div><div class="fg"><label>Senha</label><input type="password" id="lp" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn btn1" style="width:100%;justify-content:center" onclick="doLogin()">Entrar</button><div style="text-align:center;font-size:10px;color:#444;margin-top:12px;padding-top:12px;border-top:1px solid #1a1a2e">Solicite credenciais ao administrador</div>';}
+else{h+='<div class="fg"><label>Email</label><input type="email" id="le" placeholder="Email admin" onkeydown="if(event.key===\'Enter\'){document.getElementById(\'lp\').focus()}"></div><div class="fg"><label>Senha</label><input type="password" id="lp" placeholder="Senha admin" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn btn2" style="width:100%;justify-content:center" onclick="doLogin()">Acessar Painel</button>';}
 h+='</div></div>';return h;
 }
 function rSb(){
 var ad=S.user&&S.user.r==='admin';var btns=ad?ADMIN_BTN:USER_BTN;
-var h='<div class="sidebar'+(S.sb?'':' shut')+'"><div class="side-head"><div class="logo">'+PLATFORM.logo+'</div><div><h2>'+esc(PLATFORM.name)+'</h2><span>'+(ad?'Admin':'Aluno')+'</span></div></div><nav class="side-nav">';
+var logoHtml=PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'">':PLATFORM.logo;
+var h='<div class="sidebar'+(S.sb?'':' shut')+'"><div class="side-head"><div class="logo">'+logoHtml+'</div><div><h2>'+esc(PLATFORM.name)+'</h2><span>'+(ad?'Admin':'Aluno')+'</span></div></div><nav class="side-nav">';
 for(var i=0;i<btns.length;i++){if(!btns[i].a)continue;h+='<button class="nav-i'+(S.pg===btns[i].pg?' act':'')+'" onclick="go(\''+btns[i].pg+'\')">'+ic(btns[i].icon)+'<span class="ntxt">'+btns[i].label+'</span></button>';}
 h+='</nav><div class="side-foot"><div class="adm-user"><div class="ava">'+(S.user?S.user.nm.charAt(0).toUpperCase():'?')+'</div><div class="info"><div class="nm">'+(S.user?S.user.nm:'User')+'</div><div class="rl">'+(S.user?S.user.r:'user')+(S.user&&S.user.pm?' 👑':'')+'</div></div></div>';
 h+='<button onclick="togSb()" style="display:flex;align-items:center;justify-content:center;width:100%;height:30px;border-radius:6px;color:#555;background:transparent;border:none;cursor:pointer;margin-top:6px;font-size:11px">'+(S.sb?ic('cL'):ic('cR'))+' <span class="ntxt">'+(S.sb?'Recolher':'Expandir')+'</span></button></div></div>';
@@ -812,11 +844,21 @@ h+='</div></div>';}
 h+='</div></div>';return h;
 }
 function rPlat(){
+var logoPreview=PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'" alt="Logo">':PLATFORM.logo;
 var h='<div class="fa" style="max-width:600px"><h1 style="font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">'+ic('palette')+' Personalizar Plataforma</h1>';
-h+='<div class="panel"><div style="text-align:center;margin-bottom:20px"><div class="p-logo">'+PLATFORM.logo+'</div><h2 style="font-size:18px;font-weight:700;color:#fff;margin-top:8px">'+esc(PLATFORM.name)+'</h2><p style="font-size:11px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</p></div>';
+h+='<div class="panel"><div style="text-align:center;margin-bottom:20px">';
+h+='<div class="p-logo" onclick="document.getElementById(\'logoInput\').click()">'+logoPreview;
+if(PLATFORM.logoImg){h+='<div class="overlay" onclick="event.stopPropagation();removeLogoImg()"><span>Remover</span></div>';}
+else{h+='<div class="overlay"><span>Upload</span></div>';}
+h+='</div>';
+h+='<input type="file" id="logoInput" class="img-upload" accept="image/*" onchange="handleLogoUpload(this.files[0])">';
+h+='<p style="font-size:10px;color:var(--text3);margin-top:8px">Clique no logo para fazer upload de uma imagem</p>';
+h+='<h2 style="font-size:18px;font-weight:700;color:#fff;margin-top:12px">'+esc(PLATFORM.name)+'</h2>';
+h+='<p style="font-size:11px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</p>';
+h+='</div>';
 h+='<div class="fg"><label>Nome da Plataforma</label><input type="text" id="pN" value="'+esc(PLATFORM.name)+'" placeholder="Ex: Minha Academia, Escola XYZ"></div>';
-h+='<div class="fg"><label>Tagline</label><input type="text" id="pTg" value="'+esc(PLATFORM.tagline)+'" placeholder="Ex: Plataforma de Educacao"></div>';
-h+='<div class="fg"><label>Logo (inicial ou emoji)</label><input type="text" id="pLg" value="'+esc(PLATFORM.logo)+'" maxlength="2" placeholder="N"></div>';
+h+='<div class="fg"><label>Tagline (descricao curta)</label><input type="text" id="pTg" value="'+esc(PLATFORM.tagline)+'" placeholder="Ex: Plataforma de Educacao"></div>';
+h+='<div class="fg"><label>Logo (texto ou emoji - usado quando nao ha imagem)</label><input type="text" id="pLg" value="'+esc(PLATFORM.logo)+'" maxlength="2" placeholder="N"></div>';
 h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
 h+='<div class="fg"><label>Cor Primaria</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="pPC" value="'+PLATFORM.primaryColor+'" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent"><input type="text" value="'+PLATFORM.primaryColor+'" readonly style="flex:1"></div></div>';
 h+='<div class="fg"><label>Cor Secundaria</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="pSC" value="'+PLATFORM.secondaryColor+'" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent"><input type="text" value="'+PLATFORM.secondaryColor+'" readonly style="flex:1"></div></div>';
@@ -825,7 +867,7 @@ h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
 ['#00b4ff','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#f97316'].forEach(function(c){h+='<div style="width:28px;height:28px;border-radius:6px;background:'+c+';cursor:pointer;border:2px solid '+(c===PLATFORM.primaryColor?'#fff':'transparent')+'" onclick="document.getElementById(\'pPC\').value=\''+c+'\';document.getElementById(\'pSC\').value=\''+c+'\'"></div>';});
 h+='</div>';
 h+='<div class="panel" style="background:var(--bg2);margin-bottom:14px"><h4 style="font-size:12px;font-weight:600;color:#fff;margin-bottom:8px">Pre-visualizacao</h4>';
-h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,'+PLATFORM.primaryColor+','+PLATFORM.secondaryColor+');display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px">'+PLATFORM.logo+'</div><div><div style="font-size:12px;font-weight:700;color:#fff">'+esc(PLATFORM.name)+'</div><div style="font-size:9px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</div></div></div>';
+h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,'+PLATFORM.primaryColor+','+PLATFORM.secondaryColor+');display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;overflow:hidden">'+(PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':PLATFORM.logo)+'</div><div><div style="font-size:12px;font-weight:700;color:#fff">'+esc(PLATFORM.name)+'</div><div style="font-size:9px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</div></div></div>';
 h+='<div style="display:flex;gap:4px"><button class="btn btn-sm" style="background:'+PLATFORM.primaryColor+';color:#000;border:none;cursor:pointer">Botao Primario</button><button class="btn btn-sm" style="background:'+PLATFORM.secondaryColor+';color:#fff;border:none;cursor:pointer">Botao Secundario</button></div></div>';
 h+='<button class="btn btn1" onclick="doUpPlat()" style="justify-content:center">'+ic('chk')+' Salvar Personalizacao</button></div>';
 h+='<div class="panel"><h3>Exportar/Importar</h3><div style="display:flex;gap:8px"><button class="btn btn3" onclick="exportData()">Exportar Dados</button><button class="btn btn3" onclick="document.getElementById(\'importFile\').click()">Importar Dados</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div><p style="font-size:10px;color:var(--text3);margin-top:8px">Exporta todos os dados da plataforma em JSON.</p></div></div>';
@@ -1037,3 +1079,4 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')stM();});
 </script>
 </body>
 </html>
+```
