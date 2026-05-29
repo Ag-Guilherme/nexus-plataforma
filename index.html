@@ -7,6 +7,9 @@
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/400.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/600.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/700.css" rel="stylesheet">
+<!-- 🔥 Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#08080e;--bg2:#0f0f18;--bg3:#141420;--border:#1e1e30;--border2:#2a2a3e;--text:#e8e8f0;--text2:#aaa;--text3:#555;--text4:#444;--primary:#00b4ff;--secondary:#8b5cf6;--gold:#f59e0b;--green:#10b981;--red:#ef4444;--cyan:#06b6d4}
@@ -184,6 +187,49 @@ td{padding:10px 16px;font-size:12px;color:var(--text2);border-bottom:1px solid v
 <script>
 var S,ADMIN,CATEGORIES,ADMIN_BTN,USER_BTN,MEDIA,VIDEOS,BOOKS,AUDIOS,QUIZZES,COURSES,QUIZ_DATA,LOGS,USERS,ENROLLMENTS,PLATFORM;
 function safeParse(key,fallback){try{var d=localStorage.getItem(key);return d?JSON.parse(d):fallback;}catch(e){return fallback;}}
+
+// 🔥 FIREBASE SYNC CONFIGURATION
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB9FjsWgxWfCo-YAc3dc4shdfUcRJwtf6s",
+  authDomain: "nexus-plataforma.firebaseapp.com",
+  databaseURL: "https://nexus-plataforma-default-rtdb.firebaseio.com",
+  projectId: "nexus-plataforma",
+  storageBucket: "nexus-plataforma.firebasestorage.app",
+  messagingSenderId: "348080957542",
+  appId: "1:348080957542:web:649643b4a459ec2f6d65a7"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+const SYNC_KEY = 'nexus_sync_' + FIREBASE_CONFIG.projectId;
+
+// 🔁 Envia para cloud (background, sem travar UI)
+function pushToCloud() {
+  try {
+    const payload = {};
+    ['nx_p','nx_c','nx_ab','nx_ub','nx_m','nx_v','nx_b','nx_a','nx_quizzes','nx_co','nx_q','nx_l','nx_us','nx_en'].forEach(k => {
+      try { payload[k] = JSON.parse(localStorage.getItem(k)) || {}; } catch(e){}
+    });
+    db.ref(SYNC_KEY).set(payload);
+  } catch(e) {}
+}
+
+// 🔁 Baixa da cloud e atualiza quando pronto
+function loadFromCloud() {
+  try {
+    db.ref(SYNC_KEY).once('value').then(snap => {
+      if (snap.exists()) {
+        const data = snap.val();
+        ['nx_p','nx_c','nx_ab','nx_ub','nx_m','nx_v','nx_b','nx_a','nx_quizzes','nx_co','nx_q','nx_l','nx_us','nx_en'].forEach(k => {
+          if (data[k] !== undefined) localStorage.setItem(k, JSON.stringify(data[k]));
+        });
+        if (typeof showPage === 'function') showPage();
+        console.log('✓ Cloud sync OK');
+      }
+    }).catch(() => {});
+  } catch(e) {}
+}
+// 🔥 END FIREBASE SYNC
+
 function init(){
 ADMIN={id:'admin',nm:'Administrador',em:'admin',pw:'admin',r:'admin'};
 PLATFORM=safeParse('nx_p',{name:'NEXUS',tagline:'Plataforma de Conteudo',primaryColor:'#00b4ff',secondaryColor:'#8b5cf6',logo:'N',logoImg:''});
@@ -204,15 +250,16 @@ ENROLLMENTS=safeParse('nx_en',{});
 S={user:safeParse('nx_u',null),at:'user',pg:'ho',sb:true,sq:'',it:null,ip:null,fl:{v:'Todos',b:'Todos',a:'Todos',q:'Todos'},vc:null,vl:false,vc2:'',ve:false,cc:'all',sq2:false,qi:0,qz:0,qx:0,qa:[],qd:false,su:false,sc:false,sa:false,sal:false,alc:'',saq:false,aqc:'',st:'internal',ei:null,et:'',ec:null,eu:null,eb:null,ebt:'',uc:'all',cp:false,ct:null,cn:'',ut:'video',us:'yt',mg:'video',ms:'',mc2:'',us2:'',editCo:null,editCat:null,editCatIdx:-1,editCatName:'',manEnroll:null,manEnrollUserId:'',manEnrollDur:'',manEnrollDurUnit:'days',enrollTab:'view',calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),impType:'users',impPreview:[]};
 document.title=PLATFORM.name;
 showPage();
+loadFromCloud(); // 🔥 Sync background (non-blocking)
 setTimeout(function(){var l=document.getElementById('loader');if(l){l.style.opacity='0';setTimeout(function(){if(l.parentNode)l.parentNode.removeChild(l);},500);}},600);
 }
 function applyTheme(){try{var r=document.documentElement.style;r.setProperty('--primary',PLATFORM.primaryColor||'#00b4ff');r.setProperty('--secondary',PLATFORM.secondaryColor||'#8b5cf6');}catch(e){}}
-function saveAll(){try{localStorage.setItem('nx_v',JSON.stringify(VIDEOS));localStorage.setItem('nx_b',JSON.stringify(BOOKS));localStorage.setItem('nx_a',JSON.stringify(AUDIOS));localStorage.setItem('nx_quizzes',JSON.stringify(QUIZZES));localStorage.setItem('nx_co',JSON.stringify(COURSES));localStorage.setItem('nx_q',JSON.stringify(QUIZ_DATA));}catch(e){}}
-function saveLogs(){try{localStorage.setItem('nx_l',JSON.stringify(LOGS));}catch(e){}}
-function saveLayout(){try{localStorage.setItem('nx_ab',JSON.stringify(ADMIN_BTN));localStorage.setItem('nx_ub',JSON.stringify(USER_BTN));localStorage.setItem('nx_m',JSON.stringify(MEDIA));}catch(e){}}
-function saveSystem(){try{localStorage.setItem('nx_c',JSON.stringify(CATEGORIES));localStorage.setItem('nx_us',JSON.stringify(USERS));saveLogs();}catch(e){}}
-function saveEnroll(){try{localStorage.setItem('nx_en',JSON.stringify(ENROLLMENTS));}catch(e){}}
-function savePlatform(){try{localStorage.setItem('nx_p',JSON.stringify(PLATFORM));}catch(e){}}
+function saveAll(){try{localStorage.setItem('nx_v',JSON.stringify(VIDEOS));localStorage.setItem('nx_b',JSON.stringify(BOOKS));localStorage.setItem('nx_a',JSON.stringify(AUDIOS));localStorage.setItem('nx_quizzes',JSON.stringify(QUIZZES));localStorage.setItem('nx_co',JSON.stringify(COURSES));localStorage.setItem('nx_q',JSON.stringify(QUIZ_DATA));}catch(e){}pushToCloud();}
+function saveLogs(){try{localStorage.setItem('nx_l',JSON.stringify(LOGS));}catch(e){}pushToCloud();}
+function saveLayout(){try{localStorage.setItem('nx_ab',JSON.stringify(ADMIN_BTN));localStorage.setItem('nx_ub',JSON.stringify(USER_BTN));localStorage.setItem('nx_m',JSON.stringify(MEDIA));}catch(e){}pushToCloud();}
+function saveSystem(){try{localStorage.setItem('nx_c',JSON.stringify(CATEGORIES));localStorage.setItem('nx_us',JSON.stringify(USERS));saveLogs();}catch(e){}pushToCloud();}
+function saveEnroll(){try{localStorage.setItem('nx_en',JSON.stringify(ENROLLMENTS));}catch(e){}pushToCloud();}
+function savePlatform(){try{localStorage.setItem('nx_p',JSON.stringify(PLATFORM));}catch(e){}pushToCloud();}
 function fmtDate(ds){if(!ds)return'Sem limite';var d=new Date(ds);if(isNaN(d.getTime()))return ds;return d.toLocaleDateString('pt-BR');}
 function daysRemaining(ds){if(!ds)return 999999;var now=new Date();now.setHours(0,0,0,0);var exp=new Date(ds);exp.setHours(0,0,0,0);return Math.ceil((exp-now)/(1000*60*60*24));}
 function getDurationMs(dur,unit){if(!dur||dur<1)return 365*24*60*60*1000;if(unit==='days')return dur*24*60*60*1000;if(unit==='weeks')return dur*7*24*60*60*1000;if(unit==='months')return dur*30*24*60*60*1000;if(unit==='years')return dur*365*24*60*60*1000;return dur*24*60*60*1000;}
@@ -341,9 +388,9 @@ function rLa(){var h='<div class="fa"><div style="display:flex;align-items:cente
 function rPlat(){var logoPreview=PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'" alt="Logo">':PLATFORM.logo;var h='<div class="fa" style="max-width:600px"><h1 style="font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">'+ic('palette')+' Personalizar Plataforma</h1>';h+='<div class="panel"><div style="text-align:center;margin-bottom:20px">';h+='<div class="p-logo" onclick="document.getElementById(\'logoInput\').click()">'+logoPreview;if(PLATFORM.logoImg)h+='<div class="overlay" onclick="event.stopPropagation();removeLogoImg()"><span>Remover</span></div>';else h+='<div class="overlay"><span>Upload</span></div>';h+='</div>';h+='<input type="file" id="logoInput" class="img-upload" accept="image/*" onchange="handleLogoUpload(this.files[0])">';h+='<h2 style="font-size:18px;font-weight:700;color:#fff;margin-top:12px">'+esc(PLATFORM.name)+'</h2><p style="font-size:11px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</p>';h+='<p style="font-size:10px;color:var(--text3);margin-top:8px">Clique no logo para fazer upload de uma imagem</p>';h+='</div>';h+='<div class="fg"><label>Nome da Plataforma</label><input type="text" id="pN" value="'+esc(PLATFORM.name)+'" placeholder="Ex: Minha Academia, Escola XYZ"></div>';h+='<div class="fg"><label>Tagline (descricao curta)</label><input type="text" id="pTg" value="'+esc(PLATFORM.tagline)+'" placeholder="Ex: Plataforma de Educacao"></div>';h+='<div class="fg"><label>Logo (texto ou emoji - usado quando nao ha imagem)</label><input type="text" id="pLg" value="'+esc(PLATFORM.logo)+'" maxlength="2" placeholder="N"></div>';h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';h+='<div class="fg"><label>Cor Primaria</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="pPC" value="'+PLATFORM.primaryColor+'" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent"><input type="text" value="'+PLATFORM.primaryColor+'" readonly style="flex:1"></div></div>';h+='<div class="fg"><label>Cor Secundaria</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="pSC" value="'+PLATFORM.secondaryColor+'" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent"><input type="text" value="'+PLATFORM.secondaryColor+'" readonly style="flex:1"></div></div>';h+='</div>';h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';['#00b4ff','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#f97316'].forEach(function(c){h+='<div style="width:28px;height:28px;border-radius:6px;background:'+c+';cursor:pointer;border:2px solid '+(c===PLATFORM.primaryColor?'#fff':'transparent')+'" onclick="document.getElementById(\'pPC\').value=\''+c+'\';document.getElementById(\'pSC\').value=\''+c+'\'"></div>';});h+='</div>';h+='<div class="panel" style="background:var(--bg2);margin-bottom:14px"><h4 style="font-size:12px;font-weight:600;color:#fff;margin-bottom:8px">Pre-visualizacao</h4>';h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,'+PLATFORM.primaryColor+','+PLATFORM.secondaryColor+');display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;overflow:hidden">'+(PLATFORM.logoImg?'<img src="'+PLATFORM.logoImg+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':PLATFORM.logo)+'</div><div><div style="font-size:12px;font-weight:700;color:#fff">'+esc(PLATFORM.name)+'</div><div style="font-size:9px;color:var(--text3)">'+esc(PLATFORM.tagline)+'</div></div></div>';h+='<div style="display:flex;gap:4px"><button class="btn btn-sm" style="background:'+PLATFORM.primaryColor+';color:#000;border:none;cursor:pointer">Botao Primario</button><button class="btn btn-sm" style="background:'+PLATFORM.secondaryColor+';color:#fff;border:none;cursor:pointer">Botao Secundario</button></div></div>';h+='<button class="btn btn1" onclick="doUpPlat()" style="justify-content:center">'+ic('chk')+' Salvar Personalizacao</button></div>';h+='<div class="panel"><h3>Exportar/Importar</h3><div style="display:flex;gap:8px"><button class="btn btn3" onclick="exportData()">Exportar Dados</button><button class="btn btn3" onclick="document.getElementById(\'importFile\').click()">Importar Dados</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div><p style="font-size:10px;color:var(--text3);margin-top:8px">Exporta todos os dados da plataforma em JSON.</p></div></div>';return h;}
 function rImp(){
 const templates = {
-  users: 'nome,email,senha,categorias,premium',
-  courses: 'titulo,categoria,duracao,nivel,acesso,premium,expiracao',
-  media: 'tipo,titulo,autor,categoria,link'
+users: 'nome,email,senha,categorias,premium',
+courses: 'titulo,categoria,duracao,nivel,acesso,premium,expiracao',
+media: 'tipo,titulo,autor,categoria,link'
 };
 const h = `<div class="fa"><h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${ic('up')} Importação em Massa</h1>
 <div class="panel"><h3>1. Selecione o Tipo</h3>
@@ -364,31 +411,31 @@ ${S.impPreview.length ? `<div class="csv-preview"><p style="font-weight:600;marg
 return h;
 }
 function downloadTemplate(type){
-  let content='';
-  if(type==='users') content='João Silva,joao@email.com,123456,Eletrica;Automacao,true\nMaria Santos,maria@email.com,admin123,Eletrica,false';
-  else if(type==='courses') content='Eletrica Basica,Eletrica,20h,Iniciante,ele2024,false,2025-12-31\nSeguranca NR10,Seguranca,10h,Intermediario,nr10,true,2026-01-01';
-  else content='video,Introducao a Eletrica,JR,Eletrica,https://youtube.com/watch?v=xyz\nbook,Manual Eletrico,Autor,Engenharia,https://drive.google.com/file/d/123/view\nquiz,Quiz Eletrica Basica,,Eletrica,https://forms.gle/xyz';
-  const blob=new Blob([type+'\n'+content],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`modelo_${type}.csv`;a.click();URL.revokeObjectURL(a.href);
+let content='';
+if(type==='users') content='João Silva,joao@email.com,123456,Eletrica;Automacao,true\nMaria Santos,maria@email.com,admin123,Eletrica,false';
+else if(type==='courses') content='Eletrica Basica,Eletrica,20h,Iniciante,ele2024,false,2025-12-31\nSeguranca NR10,Seguranca,10h,Intermediario,nr10,true,2026-01-01';
+else content='video,Introducao a Eletrica,JR,Eletrica,https://youtube.com/watch?v=xyz\nbook,Manual Eletrico,Autor,Engenharia,https://drive.google.com/file/d/123/view\nquiz,Quiz Eletrica Basica,,Eletrica,https://forms.gle/xyz';
+const blob=new Blob([type+'\n'+content],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`modelo_${type}.csv`;a.click();URL.revokeObjectURL(a.href);
 }
 function parseCSV(text){
-  const lines=text.trim().split('\n');if(lines.length<2)return[];
-  const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
-  return lines.slice(1).map(line=>{const values=line.split(',').map(v=>v.trim());const obj={};headers.forEach((h,i)=>obj[h]=values[i]||'');return obj;});
+const lines=text.trim().split('\n');if(lines.length<2)return[];
+const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
+return lines.slice(1).map(line=>{const values=line.split(',').map(v=>v.trim());const obj={};headers.forEach((h,i)=>obj[h]=values[i]||'');return obj;});
 }
 function previewImport(file){
-  if(!file)return;const reader=new FileReader();reader.onload=e=>{S.impPreview=parseCSV(e.target.result);showPage();};reader.readAsText(file);
+if(!file)return;const reader=new FileReader();reader.onload=e=>{S.impPreview=parseCSV(e.target.result);showPage();};reader.readAsText(file);
 }
 function processImport(){
-  if(!S.impPreview.length)return;
-  let added=0;
-  if(S.impType==='users'){
-    S.impPreview.forEach(row=>{if(!row.email||!row.nome)return;if(USERS.find(u=>u.em===row.email))return;USERS.push({id:'u'+Date.now()+Math.random().toString(36).substr(2,5),nm:row.nome,em:row.email,pw:row.senha||'123456',r:'user',categories:row.categorias?row.categorias.split(';').map(c=>c.trim()):[],pm:row.premium==='true'||row.premium==='sim'});added++;});saveSystem();
-  }else if(S.impType==='courses'){
-    S.impPreview.forEach(row=>{if(!row.titulo||!row.categoria)return;COURSES.unshift({id:'c'+Date.now()+Math.random().toString(36).substr(2,5),t:row.titulo,d:'',th:'',tr:'',i:'JR',c:row.categoria,du:row.duracao||'0h',lv:row.nivel||'Iniciante',ac:row.acesso||'',pm:row.premium==='true',expDate:row.expiracao||'',maxDur:0,maxDurUnit:'days',ls:[],qz:[]});added++;});saveAll();
-  }else if(S.impType==='media'){
-    S.impPreview.forEach(row=>{if(!row.titulo||!row.link)return;const tp=row.tipo?.toLowerCase()||'video';const item={id:(tp[0]||'v')+Date.now(),t:row.titulo,au:row.autor||'JR',c:row.categoria||'',tp};if(tp==='book')item.g=row.link;else{item.s=row.link;item.st=isYT(row.link)?'yt':'gd';}if(tp==='video')VIDEOS.unshift(item);else if(tp==='book')BOOKS.unshift(item);else if(tp==='audio')AUDIOS.unshift(item);else if(tp==='quiz')QUIZZES.unshift(item);added++;});saveAll();
-  }
-  toast(`${added} itens importados com sucesso!`,'ok');S.impPreview=[];showPage();
+if(!S.impPreview.length)return;
+let added=0;
+if(S.impType==='users'){
+S.impPreview.forEach(row=>{if(!row.email||!row.nome)return;if(USERS.find(u=>u.em===row.email))return;USERS.push({id:'u'+Date.now()+Math.random().toString(36).substr(2,5),nm:row.nome,em:row.email,pw:row.senha||'123456',r:'user',categories:row.categorias?row.categorias.split(';').map(c=>c.trim()):[],pm:row.premium==='true'||row.premium==='sim'});added++;});saveSystem();
+}else if(S.impType==='courses'){
+S.impPreview.forEach(row=>{if(!row.titulo||!row.categoria)return;COURSES.unshift({id:'c'+Date.now()+Math.random().toString(36).substr(2,5),t:row.titulo,d:'',th:'',tr:'',i:'JR',c:row.categoria,du:row.duracao||'0h',lv:row.nivel||'Iniciante',ac:row.acesso||'',pm:row.premium==='true',expDate:row.expiracao||'',maxDur:0,maxDurUnit:'days',ls:[],qz:[]});added++;});saveAll();
+}else if(S.impType==='media'){
+S.impPreview.forEach(row=>{if(!row.titulo||!row.link)return;const tp=row.tipo?.toLowerCase()||'video';const item={id:(tp[0]||'v')+Date.now(),t:row.titulo,au:row.autor||'JR',c:row.categoria||'',tp};if(tp==='book')item.g=row.link;else{item.s=row.link;item.st=isYT(row.link)?'yt':'gd';}if(tp==='video')VIDEOS.unshift(item);else if(tp==='book')BOOKS.unshift(item);else if(tp==='audio')AUDIOS.unshift(item);else if(tp==='quiz')QUIZZES.unshift(item);added++;});saveAll();
+}
+toast(`${added} itens importados com sucesso!`,'ok');S.impPreview=[];showPage();
 }
 function rHo(){var f=VIDEOS[0]||{};var yf=f.st==='yt'?ytId(f.s):'';var h='<div style="position:relative;overflow:hidden;margin:-56px -20px 0 -20px">';h+=(yf?'<img src="'+ytTh(yf)+'" style="width:100%;aspect-ratio:21/9;object-fit:cover">':'<div style="width:100%;aspect-ratio:21/9;background:linear-gradient(135deg,#0a0a14,#1a1a2e)"></div>');h+='<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.3),rgba(0,0,0,.7) 60%,var(--bg))"></div>';h+='<div style="position:absolute;bottom:0;left:0;right:0;padding:28px 24px"><div style="max-width:500px"><h1 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:5px">'+(f.t||'Bem-vindo a '+PLATFORM.name)+'</h1><p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">Conteudo premium - apenas leitura.</p>';h+='<button onclick="clkIt({t:\''+escJs(f.t)+'\',s:\''+escJs(f.s)+'\',st:\''+f.st+'\',tp:\'video\'})" class="btn btn1" style="border-radius:8px;border:none;cursor:pointer">'+ic('play')+' Assistir</button></div></div></div>';h+='<div class="fa" style="margin-top:14px">';if(VIDEOS.length>0)h+=mR('Videos',VIDEOS.slice(0,4),'video',vC);if(BOOKS.length>0)h+=mR('Livros',BOOKS.slice(0,6),'book',bC);if(AUDIOS.length>0)h+=mR('Audios',AUDIOS,'head',aR);if(QUIZZES.length>0)h+=mR('Quizzes',QUIZZES,'forms',qC);var fc=gFC();h+='<div style="margin-bottom:32px"><h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:12px">'+ic('grd')+' Seus Cursos ('+fc.length+')</h2>';if(fc.length>0){h+='<div class="sr">';for(var i=0;i<fc.length&&i<4;i++){var c=fc[i];h+='<div class="card'+(c.pm?' premium':'')+'" style="flex-shrink:0;width:260px;min-width:260px" onclick="doVCo(\''+c.id+'\')"><div style="position:relative;aspect-ratio:16/9;overflow:hidden;background:#1a1a2e">'+(c.th?'<img src="'+c.th+'" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555">'+ic('grd',32)+'</div>')+'<div style="position:absolute;top:8px;left:8px;display:flex;gap:4px"><span class="cc" style="font-size:8px">'+(c.c||'Geral')+'</span>'+(c.pm?'<span class="badge premium-badge" style="font-size:7px">'+ic('crown')+' PREMIUM</span>':'')+'</div></div><div style="padding:10px"><h3 style="font-size:12px;font-weight:600;color:#fff">'+c.t+'</h3></div></div>';}h+='</div>';}else h+='<div class="empty"><h3>Nenhum curso disponivel</h3><p>Aguarde o administrador atribuir categorias</p></div>';h+='</div>';if(isPremiumUser()){h+='<div style="margin-bottom:32px"><h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:12px">'+ic('cal')+' Calendario de Atividade</h2>';h+=renderCalendar();h+='</div>';}h+='</div>';return h;}
 function rVi(){var fl=S.fl.v==='Todos'?VIDEOS:VIDEOS.filter(function(v){return v.c===S.fl.v;});return rCatPage('Videos','vi','video',vC,fl);}
